@@ -1,5 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+/**
+ * Skill Model
+ * Represents a technical skill with a proficiency level and category (e.g., Frontend, Backend).
+ */
 export interface ISkill extends Document {
   name: string;
   category: "Language" | "Framework" | "Database" | "Tool" | "Other";

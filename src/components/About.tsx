@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * About Component
+ * Static section displaying personal information and background.
+ */
 export function About() {
   return (
     <section id="about" className="py-20 bg-muted/30">

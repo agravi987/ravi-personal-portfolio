@@ -6,6 +6,11 @@ import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import { ShootingStars } from "@/components/ui/shooting-stars";
 import { StarsBackground } from "@/components/ui/stars-background";
 
+/**
+ * Hero Component
+ * First section of the landing page. Features a typewriter effect,
+ * animated background (shooting stars), and call-to-action buttons.
+ */
 export function Hero() {
   const words = [
     {

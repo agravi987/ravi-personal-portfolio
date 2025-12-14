@@ -1,5 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+/**
+ * Experience Model
+ * Represents work experience or education history.
+ */
 export interface IExperience extends Document {
   role: string;
   company: string;

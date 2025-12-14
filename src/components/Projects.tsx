@@ -17,6 +17,11 @@ interface ProjectsProps {
   projects: Project[];
 }
 
+/**
+ * Projects Component
+ * Displays a grid of projects using Framer Motion for entrance animations.
+ * Fetched data is passed as props.
+ */
 export function Projects({ projects }: ProjectsProps) {
   return (
     <section id="projects" className="py-20 relative">

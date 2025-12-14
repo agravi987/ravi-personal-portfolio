@@ -1,5 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+/**
+ * Achievement Model
+ * Represents awards, certifications, or other notable accomplishments.
+ */
 export interface IAchievement extends Document {
   title: string;
   description: string;

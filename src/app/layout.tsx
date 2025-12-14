@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   description: "Full Stack Developer Portfolio",
 };
 
+/**
+ * Root Layout
+ * Defines the global structure of the application.
+ * Includes fonts, metadata, and the ThemeProvider for dark mode support.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

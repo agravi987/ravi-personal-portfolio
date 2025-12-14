@@ -1,4 +1,10 @@
 import { auth } from "@/auth";
+
+/**
+ * Middleware
+ * Protects routes that require authentication (e.g., /admin/*).
+ * Redirects unauthenticated users to the login page.
+ */
 import { NextResponse } from "next/server";
 
 export default auth((req) => {

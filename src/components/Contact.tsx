@@ -23,6 +23,11 @@ interface ContactFormData {
   message: string;
 }
 
+/**
+ * Contact Component
+ * Features a contact form with validation and email sending via API.
+ * Also displays a section of achievements/certifications.
+ */
 export function Contact({ achievements }: ContactProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<

@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+/**
+ * MongoDB Connection Utility
+ * Handles reuse of database connections across serverless function invocations (hot reloads)
+ * to prevent exhausting database connection limits in Next.js.
+ */
+
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {

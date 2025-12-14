@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+/**
+ * Contact Model
+ * Stores contact form submissions in the database.
+ */
 const ContactSchema = new mongoose.Schema({
   name: {
     type: String,

@@ -38,6 +38,12 @@ async function getData() {
   };
 }
 
+/**
+ * Home Page
+ * Server Component that fetches data (Projects, Skills, Experience, Achievements)
+ * directly from the database and passes it to client components.
+ * This ensures good SEO and fast initial load.
+ */
 export default async function Home() {
   let data;
   try {

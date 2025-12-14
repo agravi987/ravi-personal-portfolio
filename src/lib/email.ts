@@ -1,5 +1,10 @@
 import nodemailer from "nodemailer";
 
+/**
+ * Email Service Utility
+ * Handles sending contact form submissions via email using Nodemailer.
+ */
+
 interface ContactEmailData {
   name: string;
   email: string;

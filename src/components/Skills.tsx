@@ -13,6 +13,11 @@ interface SkillsProps {
   skills: Skill[];
 }
 
+/**
+ * Skills Component
+ * Displays technical skills categorized by type (Language, Framework, etc.).
+ * Visualization includes progress bars for proficiency levels.
+ */
 export function Skills({ skills }: SkillsProps) {
   const categories = Array.from(new Set(skills.map((s) => s.category)));
 

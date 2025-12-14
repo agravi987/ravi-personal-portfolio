@@ -8,6 +8,11 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+/**
+ * Delete Image API Route
+ * Handles deletion of images from Cloudinary.
+ * Expects a JSON body with 'publicId'.
+ */
 export async function POST(request: NextRequest) {
   try {
     const { publicId } = await request.json();

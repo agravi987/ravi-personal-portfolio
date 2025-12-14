@@ -15,6 +15,11 @@ interface ExperienceProps {
   experience: Experience[];
 }
 
+/**
+ * Experience Component
+ * Renders a timeline of work experience and education.
+ * Uses a vertical line design with dot indicators.
+ */
 export function Experience({ experience }: ExperienceProps) {
   return (
     <section id="experience" className="py-20">

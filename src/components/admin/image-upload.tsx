@@ -11,6 +11,11 @@ interface ImageUploadProps {
   disabled?: boolean;
 }
 
+/**
+ * ImageUpload Component
+ * Admin utility for uploading images to Cloudinary.
+ * Supports drag-and-drop and file selection.
+ */
 export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(value || "");

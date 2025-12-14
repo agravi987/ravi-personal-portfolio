@@ -13,6 +13,11 @@ const navLinks = [
   { name: "Contact", href: "#contact" },
 ];
 
+/**
+ * Navbar Component
+ * Responsive navigation bar with mobile menu toggle and theme switcher.
+ * Uses Next.js Link for client-side navigation.
+ */
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 

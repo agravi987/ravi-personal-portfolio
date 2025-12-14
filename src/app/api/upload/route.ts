@@ -8,6 +8,11 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+/**
+ * Upload API Route
+ * Handles file uploads to Cloudinary via the server to keep secrets secure.
+ * Receives a FormData object with a 'file' field.
+ */
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
