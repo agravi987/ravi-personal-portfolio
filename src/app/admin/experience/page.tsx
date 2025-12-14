@@ -38,25 +38,57 @@ export default function ExperienceAdmin() {
   }, []);
 
   const onDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
-    await fetch(`/api/experience/${id}`, { method: "DELETE" });
-    fetchExperience();
+    if (!confirm("Are you sure you want to delete this experience?")) return;
+
+    try {
+      const res = await fetch(`/api/experience/${id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Failed to delete experience: ${error.error || "Unknown error"}`);
+        return;
+      }
+
+      fetchExperience();
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete experience. Please try again.");
+    }
   };
 
   const onSubmit = async (data: Experience) => {
-    if (editingExp) {
-      await fetch(`/api/experience/${editingExp._id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
-    } else {
-      await fetch("/api/experience", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+    try {
+      let res;
+      if (editingExp) {
+        res = await fetch(`/api/experience/${editingExp._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      } else {
+        res = await fetch("/api/experience", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      }
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Failed to save experience: ${error.error || "Unknown error"}`);
+        return;
+      }
+
+      closeModal();
+      fetchExperience();
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("Failed to save experience. Please try again.");
     }
-    closeModal();
-    fetchExperience();
   };
 
   const openModal = (exp?: Experience) => {

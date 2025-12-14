@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
-import Skill from "@/models/Skill";
+import Contact from "@/models/Contact";
 
 export async function PUT(
   req: Request,
@@ -15,7 +15,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await req.json();
-    const updated = await Skill.findByIdAndUpdate(id, body, {
+    const updated = await Contact.findByIdAndUpdate(id, body, {
       new: true,
     });
     return NextResponse.json(updated);
@@ -35,7 +35,7 @@ export async function DELETE(
   await dbConnect();
   try {
     const { id } = await params;
-    await Skill.findByIdAndDelete(id);
+    await Contact.findByIdAndDelete(id);
     return NextResponse.json({ message: "Deleted" });
   } catch (err) {
     return NextResponse.json({ error: "Failed" }, { status: 500 });

@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, X, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { ImageUpload } from "@/components/admin/image-upload";
 
 interface Achievement {
   _id: string;
   title: string;
   description: string;
   date: string;
+  certificateImage?: string;
 }
 
 export default function AchievementsAdmin() {
@@ -34,25 +36,59 @@ export default function AchievementsAdmin() {
   }, []);
 
   const onDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
-    await fetch(`/api/achievements/${id}`, { method: "DELETE" });
-    fetchItems();
+    if (!confirm("Are you sure you want to delete this achievement?")) return;
+
+    try {
+      const res = await fetch(`/api/achievements/${id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(
+          `Failed to delete achievement: ${error.error || "Unknown error"}`
+        );
+        return;
+      }
+
+      fetchItems();
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete achievement. Please try again.");
+    }
   };
 
   const onSubmit = async (data: Achievement) => {
-    if (editingItem) {
-      await fetch(`/api/achievements/${editingItem._id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
-    } else {
-      await fetch("/api/achievements", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+    try {
+      let res;
+      if (editingItem) {
+        res = await fetch(`/api/achievements/${editingItem._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      } else {
+        res = await fetch("/api/achievements", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      }
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Failed to save achievement: ${error.error || "Unknown error"}`);
+        return;
+      }
+
+      closeModal();
+      fetchItems();
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("Failed to save achievement. Please try again.");
     }
-    closeModal();
-    fetchItems();
   };
 
   const openModal = (item?: Achievement) => {
@@ -60,6 +96,7 @@ export default function AchievementsAdmin() {
       setEditingItem(item);
       setValue("title", item.title);
       setValue("description", item.description);
+      setValue("certificateImage", item.certificateImage);
     } else {
       setEditingItem(null);
       reset();
@@ -141,6 +178,17 @@ export default function AchievementsAdmin() {
                 placeholder="Description"
                 className="w-full border p-2 rounded bg-background h-24"
               />
+              {/* Hidden input to register certificateImage with form */}
+              <input type="hidden" {...register("certificateImage")} />
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Certificate Image
+                </label>
+                <ImageUpload
+                  value={editingItem?.certificateImage || ""}
+                  onChange={(url) => setValue("certificateImage", url)}
+                />
+              </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   type="button"

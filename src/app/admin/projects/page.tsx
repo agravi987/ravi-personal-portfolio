@@ -42,9 +42,22 @@ export default function ProjectsAdmin() {
   }, []);
 
   const onDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
-    await fetch(`/api/projects/${id}`, { method: "DELETE" });
-    fetchProjects();
+    if (!confirm("Are you sure you want to delete this project?")) return;
+
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Failed to delete project: ${error.error || "Unknown error"}`);
+        return;
+      }
+
+      fetchProjects();
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete project. Please try again.");
+    }
   };
 
   const onSubmit = async (data: Project) => {

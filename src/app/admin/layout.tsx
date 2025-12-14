@@ -8,6 +8,7 @@ import {
   Wrench,
   Briefcase,
   Award,
+  Mail,
   LogOut,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -19,6 +20,7 @@ const sidebarLinks = [
   { name: "Skills", href: "/admin/skills", icon: Wrench },
   { name: "Experience", href: "/admin/experience", icon: Briefcase },
   { name: "Achievements", href: "/admin/achievements", icon: Award },
+  { name: "Contacts", href: "/admin/contacts", icon: Mail },
 ];
 
 export default function AdminLayout({

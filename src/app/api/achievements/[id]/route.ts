@@ -5,7 +5,7 @@ import Achievement from "@/models/Achievement";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   if (!session)
@@ -13,8 +13,9 @@ export async function PUT(
 
   await dbConnect();
   try {
+    const { id } = await params;
     const body = await req.json();
-    const updated = await Achievement.findByIdAndUpdate(params.id, body, {
+    const updated = await Achievement.findByIdAndUpdate(id, body, {
       new: true,
     });
     return NextResponse.json(updated);
@@ -25,7 +26,7 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   if (!session)
@@ -33,7 +34,8 @@ export async function DELETE(
 
   await dbConnect();
   try {
-    await Achievement.findByIdAndDelete(params.id);
+    const { id } = await params;
+    await Achievement.findByIdAndDelete(id);
     return NextResponse.json({ message: "Deleted" });
   } catch (err) {
     return NextResponse.json({ error: "Failed" }, { status: 500 });

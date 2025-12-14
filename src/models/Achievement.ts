@@ -6,6 +6,7 @@ export interface IAchievement extends Document {
   date: Date; // or string
   organization?: string;
   credentialLink?: string;
+  certificateImage?: string;
 }
 
 const AchievementSchema: Schema = new Schema({
@@ -14,6 +15,7 @@ const AchievementSchema: Schema = new Schema({
   date: { type: Date },
   organization: { type: String },
   credentialLink: { type: String },
+  certificateImage: { type: String },
 });
 
 const Achievement =

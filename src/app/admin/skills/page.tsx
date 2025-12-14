@@ -39,25 +39,57 @@ export default function SkillsAdmin() {
   }, []);
 
   const onDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
-    await fetch(`/api/skills/${id}`, { method: "DELETE" });
-    fetchSkills();
+    if (!confirm("Are you sure you want to delete this skill?")) return;
+
+    try {
+      const res = await fetch(`/api/skills/${id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Failed to delete skill: ${error.error || "Unknown error"}`);
+        return;
+      }
+
+      fetchSkills();
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete skill. Please try again.");
+    }
   };
 
   const onSubmit = async (data: Skill) => {
-    if (editingSkill) {
-      await fetch(`/api/skills/${editingSkill._id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
-    } else {
-      await fetch("/api/skills", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+    try {
+      let res;
+      if (editingSkill) {
+        res = await fetch(`/api/skills/${editingSkill._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      } else {
+        res = await fetch("/api/skills", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+      }
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Failed to save skill: ${error.error || "Unknown error"}`);
+        return;
+      }
+
+      closeModal();
+      fetchSkills();
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("Failed to save skill. Please try again.");
     }
-    closeModal();
-    fetchSkills();
   };
 
   const openModal = (skill?: Skill) => {
