@@ -11,8 +11,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       authorize: async (credentials) => {
         // Simple hardcoded admin check for the portfolio owner
         // In a real app with multiple users, check DB.
-        const adminUser = "admin";
-        const adminPass = "admin123"; // Should be in env, but for demo/default
+        const adminUser = process.env.ADMIN_USERNAME;
+        const adminPass = process.env.ADMIN_PASSWORD;
 
         if (
           credentials.username === adminUser &&

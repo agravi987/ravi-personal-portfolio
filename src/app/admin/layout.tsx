@@ -11,6 +11,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -81,13 +82,16 @@ export default function AdminLayout({
           <h1 className="text-lg font-semibold">
             {sidebarLinks.find((l) => l.href === pathname)?.name || "Dashboard"}
           </h1>
-          <Link
-            href="/"
-            target="_blank"
-            className="text-sm font-medium hover:text-primary"
-          >
-            View Site
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              target="_blank"
+              className="text-sm font-medium hover:text-primary"
+            >
+              View Site
+            </Link>
+            <ThemeToggle />
+          </div>
         </header>
         <div className="p-6 md:p-8 max-w-5xl">{children}</div>
       </main>

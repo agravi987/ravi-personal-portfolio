@@ -1,67 +1,87 @@
 "use client";
-
+import React from "react";
 import Link from "next/link";
-import { ArrowRight, Github, Linkedin, Mail } from "lucide-react";
+import { ArrowRight, Download, Github, Linkedin, Mail } from "lucide-react";
+import { TypewriterEffect } from "@/components/ui/typewriter-effect";
+import { ShootingStars } from "@/components/ui/shooting-stars";
+import { StarsBackground } from "@/components/ui/stars-background";
 
 export function Hero() {
+  const words = [
+    {
+      text: "Hi,",
+    },
+    {
+      text: "I'm",
+    },
+    {
+      text: "Ravi",
+      className: "text-primary dark:text-primary",
+    },
+    {
+      text: "Agrahari",
+      className: "text-primary dark:text-primary",
+    },
+  ];
+
   return (
-    <section className="min-h-screen flex items-center justify-center pt-16 relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background opacity-50" />
+    <section
+      id="home"
+      className="min-h-screen flex items-center justify-center pt-16 relative overflow-hidden bg-background"
+    >
+      <div className="container px-4 mx-auto relative z-10">
+        <div className="flex flex-col items-center text-center gap-8">
+          <div className="space-y-4">
+            <TypewriterEffect words={words} />
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-[600px] mx-auto">
+              Full Stack Developer specializing in building exceptional digital
+              experiences.
+            </p>
+          </div>
 
-      <div className="container px-4 text-center">
-        <div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-            Hi, I'm <span className="text-primary">Ravi Agrahari</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A Computer Science Student & Full Stack Developer building modern
-            web experiences with Next.js and MongoDB.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="#projects"
-              className="inline-flex items-center justify-center h-11 px-8 rounded-md bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"
             >
-              View Projects <ArrowRight className="ml-2 h-4 w-4" />
+              View Work <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="#contact"
-              className="inline-flex items-center justify-center h-11 px-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+              href="/resume.pdf"
+              target="_blank"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors font-medium"
             >
-              Contact Me
+              Resume <Download className="w-4 h-4" />
             </Link>
           </div>
 
-          <div className="mt-12 flex justify-center gap-6 text-muted-foreground">
-            <a
-              href="https://github.com/raviagrahari"
+          <div className="flex items-center gap-6 text-muted-foreground">
+            <Link
+              href={`https://github.com/${process.env.NEXT_PUBLIC_GITHUB_USERNAME}`}
               target="_blank"
-              rel="noopener noreferrer"
               className="hover:text-primary transition-colors"
             >
-              <Github size={24} />
-              <span className="sr-only">GitHub</span>
-            </a>
-            <a
-              href="https://linkedin.com/in/raviagrahari"
+              <Github className="w-6 h-6" />
+            </Link>
+            <Link
+              href={`https://linkedin.com/in/${process.env.NEXT_PUBLIC_LINKEDIN_USERNAME}`}
               target="_blank"
-              rel="noopener noreferrer"
               className="hover:text-primary transition-colors"
             >
-              <Linkedin size={24} />
-              <span className="sr-only">LinkedIn</span>
-            </a>
-            <a
-              href="mailto:ravi@example.com"
+              <Linkedin className="w-6 h-6" />
+            </Link>
+            <Link
+              href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
               className="hover:text-primary transition-colors"
             >
-              <Mail size={24} />
-              <span className="sr-only">Email</span>
-            </a>
+              <Mail className="w-6 h-6" />
+            </Link>
           </div>
         </div>
       </div>
+
+      <ShootingStars />
+      <StarsBackground />
     </section>
   );
 }
