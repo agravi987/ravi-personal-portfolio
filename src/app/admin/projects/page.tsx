@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, X, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { ImageUpload } from "@/components/admin/image-upload";
 
 interface Project {
   _id: string;
@@ -217,12 +218,12 @@ export default function ProjectsAdmin() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Image URL
+                <label className="block text-sm font-medium mb-2">
+                  Project Image
                 </label>
-                <input
-                  {...register("image")}
-                  className="w-full border rounded-md px-3 py-2 bg-background"
+                <ImageUpload
+                  value={editingProject?.image || ""}
+                  onChange={(url) => setValue("image", url)}
                 />
               </div>
               <div className="flex items-center gap-2">
