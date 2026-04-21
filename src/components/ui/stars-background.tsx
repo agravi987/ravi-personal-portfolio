@@ -4,7 +4,6 @@ import React, {
   useState,
   useEffect,
   useRef,
-  RefObject,
   useCallback,
 } from "react";
 
@@ -34,7 +33,7 @@ export const StarsBackground = ({
   className,
 }: StarBackgroundProps) => {
   const [stars, setStars] = useState<StarProps[]>([]);
-  const canvasRef: RefObject<HTMLCanvasElement | null> = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const generateStars = useCallback(
     (width: number, height: number): StarProps[] => {
@@ -81,13 +80,14 @@ export const StarsBackground = ({
     updateStars();
 
     const resizeObserver = new ResizeObserver(updateStars);
-    if (canvasRef.current) {
-      resizeObserver.observe(canvasRef.current);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      resizeObserver.observe(canvas);
     }
 
     return () => {
-      if (canvasRef.current) {
-        resizeObserver.unobserve(canvasRef.current);
+      if (canvas) {
+        resizeObserver.unobserve(canvas);
       }
     };
   }, [
@@ -135,7 +135,7 @@ export const StarsBackground = ({
 
   return (
     <canvas
-      ref={canvasRef as any}
+      ref={canvasRef}
       className={cn(
         "h-full w-full absolute inset-0 z-0 pointer-events-none",
         className

@@ -19,7 +19,7 @@ export async function PUT(
       new: true,
     });
     return NextResponse.json(updated);
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 }
@@ -37,7 +37,7 @@ export async function DELETE(
     const { id } = await params;
     await Project.findByIdAndDelete(id);
     return NextResponse.json({ message: "Deleted" });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 }

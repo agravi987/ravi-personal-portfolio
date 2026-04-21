@@ -29,7 +29,7 @@ export default function LoginPage() {
       } else {
         router.push("/admin");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong");
     } finally {
       setLoading(false);

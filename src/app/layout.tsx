@@ -6,8 +6,9 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Ravi Agrahari | Portfolio",
-  description: "Full Stack Developer Portfolio",
+  title: "Ravi Agrahari | Full-Stack Cloud Developer",
+  description:
+    "Professional portfolio for Ravi Agrahari, a full-stack developer focused on Next.js, MERN, cloud-ready deployments, APIs, and DevOps-minded product delivery.",
 };
 
 /**

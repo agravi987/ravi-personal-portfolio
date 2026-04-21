@@ -4,13 +4,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 30% 98%;
+    --foreground: 217 33% 12%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 190 84% 38%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,19 +22,19 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 190 84% 38%;
     --radius: 0.5rem;
   }
 
   /* Dark Theme */
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222 34% 8%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 187 92% 55%;
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -46,7 +46,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --ring: 187 92% 55%;
   }
 
   /* Eye Comfort (Warm/Sepia) */
@@ -79,6 +79,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    scroll-behavior: smooth;
   }
 }
 
@@ -133,6 +135,77 @@
   }
 }
 
+@keyframes planet-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-10px, 14px, 0) scale(1.04);
+  }
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes space-drift {
+  0% {
+    background-position: 0 0, 40px 80px, 120px 20px;
+  }
+  100% {
+    background-position: 220px -180px, -160px 180px, 80px 220px;
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes tech-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -10px;
+  }
+}
+
+@keyframes decor-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-16px, 18px, 0) rotate(3deg);
+  }
+}
+
+@keyframes decor-drift-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(180deg);
+  }
+  50% {
+    transform: translate3d(14px, -18px, 0) rotate(176deg);
+  }
+}
+
+
 /* Utility Classes */
 @layer utilities {
   .animate-glow {
@@ -172,14 +245,60 @@
 
   .grid-pattern {
     background-image: linear-gradient(
-        rgba(59, 130, 246, 0.1) 1px,
+        rgba(14, 165, 233, 0.1) 1px,
         transparent 1px
       ),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+      linear-gradient(90deg, rgba(16, 185, 129, 0.09) 1px, transparent 1px);
     background-size: 50px 50px;
   }
 
   .text-glow {
-    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    text-shadow: 0 0 10px rgba(14, 165, 233, 0.45);
+  }
+
+  .animate-planet-float {
+    animation: planet-float 8s ease-in-out infinite;
+  }
+
+  .animate-orbit-spin {
+    animation: orbit-spin 26s linear infinite;
+  }
+
+  .animate-orbit-spin-reverse {
+    animation: orbit-spin 34s linear infinite reverse;
+  }
+
+  .animate-soft-pulse {
+    animation: soft-pulse 5s ease-in-out infinite;
+  }
+
+  .space-dust {
+    background-image: radial-gradient(
+        circle,
+        rgba(14, 165, 233, 0.16) 0 1px,
+        transparent 1.5px
+      ),
+      radial-gradient(circle, rgba(20, 184, 166, 0.12) 0 1px, transparent 1.5px),
+      radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 1px, transparent 1.5px);
+    background-position: 0 0, 40px 80px, 120px 20px;
+    background-size: 180px 180px, 220px 220px, 260px 260px;
+    animation: space-drift 28s linear infinite;
+  }
+
+  .animate-decor-drift {
+    animation: decor-drift 16s ease-in-out infinite;
+  }
+
+  .animate-decor-drift-slow {
+    animation: decor-drift-slow 22s ease-in-out infinite;
+  }
+
+  .section-divider {
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--border)),
+      transparent
+    );
   }
 }

@@ -1,19 +1,26 @@
 "use client";
 
-import { Award, Mail, Send, Loader2, CheckCircle, XCircle } from "lucide-react";
+import {
+  Award,
+  CheckCircle,
+  Clock,
+  Loader2,
+  Mail,
+  MapPin,
+  Send,
+  ShieldCheck,
+  XCircle,
+} from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-
-interface Achievement {
-  _id: string;
-  title: string;
-  description: string;
-  certificateImage?: string;
-}
+import type { PortfolioAchievement } from "@/lib/portfolio-data";
+import type { PortfolioProfile } from "@/lib/portfolio-data";
 
 interface ContactProps {
-  achievements: Achievement[];
+  achievements: PortfolioAchievement[];
+  showAchievements?: boolean;
+  profile?: PortfolioProfile;
 }
 
 interface ContactFormData {
@@ -23,17 +30,20 @@ interface ContactFormData {
   message: string;
 }
 
-/**
- * Contact Component
- * Features a contact form with validation and email sending via API.
- * Also displays a section of achievements/certifications.
- */
-export function Contact({ achievements }: ContactProps) {
+const inputClass =
+  "w-full rounded-lg border bg-background px-4 py-3 outline-none transition focus:border-primary/60 focus:ring-4 focus:ring-primary/10";
+
+export function Contact({
+  achievements,
+  showAchievements = true,
+  profile,
+}: ContactProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "success" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const email = profile?.email || "hello@ravi.dev";
 
   const {
     register,
@@ -64,16 +74,14 @@ export function Contact({ achievements }: ContactProps) {
 
       setSubmitStatus("success");
       reset();
-
-      // Hide success message after 5 seconds
       setTimeout(() => setSubmitStatus("idle"), 5000);
-    } catch (error: any) {
+    } catch (error) {
       setSubmitStatus("error");
       setErrorMessage(
-        error.message || "Something went wrong. Please try again."
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again."
       );
-
-      // Hide error message after 5 seconds
       setTimeout(() => setSubmitStatus("idle"), 5000);
     } finally {
       setIsSubmitting(false);
@@ -81,187 +89,201 @@ export function Contact({ achievements }: ContactProps) {
   };
 
   return (
-    <section id="contact" className="py-20 bg-muted/30">
-      <div className="container px-4 mx-auto">
-        {/* Achievements Section */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Achievements</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {achievements.map((ach) => (
-              <div
-                key={ach._id}
-                className="glow-border-hover bg-background border rounded-lg overflow-hidden group"
-              >
-                {/* Certificate Image or Fallback */}
-                <div className="relative h-48 bg-gradient-to-br from-primary/10 to-purple-600/10 flex items-center justify-center">
-                  {ach.certificateImage ? (
-                    <Image
-                      src={ach.certificateImage}
-                      alt={ach.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-3 text-primary">
-                      <div className="p-4 bg-primary/10 rounded-full">
-                        <Award size={48} />
+    <section id="contact" className="relative overflow-hidden bg-muted/30 py-24">
+      <div className="container mx-auto px-4">
+        {showAchievements && (
+          <div className="mb-20">
+            <div className="mx-auto mb-12 max-w-3xl text-center">
+              <p className="text-sm font-bold uppercase tracking-[0.24em] text-primary">
+                Proof points
+              </p>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">
+                Achievements that back the build quality.
+              </h2>
+            </div>
+
+            <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {achievements.map((achievement) => (
+                <article
+                  key={achievement._id}
+                  className="group overflow-hidden rounded-xl border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                >
+                  <div className="relative h-44 border-b bg-[linear-gradient(135deg,rgba(245,158,11,0.18),rgba(14,165,233,0.14),rgba(16,185,129,0.14))]">
+                    {achievement.certificateImage ? (
+                      <Image
+                        src={achievement.certificateImage}
+                        alt={achievement.title}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <div className="rounded-full bg-background/80 p-5 text-primary shadow-sm backdrop-blur">
+                          <Award className="h-10 w-10" />
+                        </div>
                       </div>
-                      <span className="text-sm font-medium">Certificate</span>
-                    </div>
+                    )}
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold group-hover:text-primary">
+                      {achievement.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      {achievement.description}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.42fr_0.58fr]">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.24em] text-primary">
+              Contact
+            </p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">
+              Let us build something production-ready.
+            </h2>
+            <p className="mt-5 leading-7 text-muted-foreground">
+              I am open to internships, freelance builds, collaboration, and
+              full-stack product work where clean UI, reliable APIs, and cloud
+              deployment matter.
+            </p>
+
+            <div className="mt-8 space-y-4">
+              <a
+                href={`mailto:${email}`}
+                className="flex items-center gap-3 rounded-xl border bg-background p-4 font-semibold transition hover:border-primary/50 hover:text-primary"
+              >
+                <Mail className="h-5 w-5" />
+                {email}
+              </a>
+              <div className="flex items-center gap-3 rounded-xl border bg-background p-4 text-muted-foreground">
+                <MapPin className="h-5 w-5 text-primary" />
+                {profile?.location || "India, available for remote-first teams"}
+              </div>
+              <div className="flex items-center gap-3 rounded-xl border bg-background p-4 text-muted-foreground">
+                <Clock className="h-5 w-5 text-primary" />
+                Best fit: product builds, dashboards, APIs, cloud deploys
+              </div>
+              <div className="flex items-center gap-3 rounded-xl border bg-background p-4 text-muted-foreground">
+                <ShieldCheck className="h-5 w-5 text-primary" />
+                Contact form stores requests and sends email alerts
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border bg-background p-6 shadow-sm">
+            {submitStatus === "success" && (
+              <div className="mb-6 flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-300">
+                <CheckCircle className="h-5 w-5" />
+                <p className="text-sm font-semibold">
+                  Thank you. Your message has been sent successfully.
+                </p>
+              </div>
+            )}
+
+            {submitStatus === "error" && (
+              <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-red-600">
+                <XCircle className="h-5 w-5" />
+                <p className="text-sm font-semibold">{errorMessage}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("name", { required: "Name is required" })}
+                    type="text"
+                    className={inputClass}
+                    placeholder="Your name"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-xs font-medium text-red-500">
+                      {errors.name.message}
+                    </p>
                   )}
                 </div>
 
-                {/* Achievement Info */}
-                <div className="p-6">
-                  <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                    {ach.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    {ach.description}
-                  </p>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^\S+@\S+\.\S+$/,
+                        message: "Please enter a valid email",
+                      },
+                    })}
+                    type="email"
+                    className={inputClass}
+                    placeholder="your@email.com"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-xs font-medium text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Contact Section */}
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Get In Touch</h2>
-            <p className="text-muted-foreground">
-              I'm currently looking for new opportunities. Whether you have a
-              question or just want to say hi, I'll try my best to get back to
-              you!
-            </p>
-          </div>
-
-          {/* Success Message */}
-          {submitStatus === "success" && (
-            <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg flex items-center gap-3 text-green-600">
-              <CheckCircle size={20} />
-              <p className="text-sm font-medium">
-                Thank you! Your message has been sent successfully.
-              </p>
-            </div>
-          )}
-
-          {/* Error Message */}
-          {submitStatus === "error" && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3 text-red-600">
-              <XCircle size={20} />
-              <p className="text-sm font-medium">{errorMessage}</p>
-            </div>
-          )}
-
-          {/* Contact Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Name */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Name <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-semibold">
+                  Subject
                 </label>
                 <input
-                  {...register("name", { required: "Name is required" })}
+                  {...register("subject")}
                   type="text"
-                  className="w-full px-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                  placeholder="Your name"
+                  className={inputClass}
+                  placeholder="Internship, freelance build, or collaboration"
                 />
-                {errors.name && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.name.message}
-                  </p>
-                )}
               </div>
 
-              {/* Email */}
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Email <span className="text-red-500">*</span>
+                <label className="mb-2 block text-sm font-semibold">
+                  Message <span className="text-red-500">*</span>
                 </label>
-                <input
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^\S+@\S+\.\S+$/,
-                      message: "Please enter a valid email",
-                    },
-                  })}
-                  type="email"
-                  className="w-full px-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                  placeholder="your@email.com"
+                <textarea
+                  {...register("message", { required: "Message is required" })}
+                  rows={6}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Tell me about the product, stack, deadline, or problem statement..."
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.email.message}
+                {errors.message && (
+                  <p className="mt-1 text-xs font-medium text-red-500">
+                    {errors.message.message}
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Subject */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Subject</label>
-              <input
-                {...register("subject")}
-                type="text"
-                className="w-full px-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
-                placeholder="What's this about?"
-              />
-            </div>
-
-            {/* Message */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Message <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                {...register("message", { required: "Message is required" })}
-                rows={6}
-                className="w-full px-4 py-3 bg-background border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none resize-none"
-                placeholder="Your message..."
-              />
-              {errors.message && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.message.message}
-                </p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div className="text-center">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={20} className="animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Send size={20} />
+                    <Send className="h-5 w-5" />
                     Send Message
                   </>
                 )}
               </button>
-            </div>
-          </form>
-
-          {/* Alternative Contact */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              Or email me directly at{" "}
-              <a
-                href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
-                className="text-primary hover:underline font-medium"
-              >
-                {process.env.NEXT_PUBLIC_EMAIL}
-              </a>
-            </p>
+            </form>
           </div>
         </div>
       </div>

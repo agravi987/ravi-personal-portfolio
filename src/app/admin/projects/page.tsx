@@ -16,13 +16,17 @@ interface Project {
   featured: boolean;
 }
 
+type ProjectForm = Omit<Project, "technologies"> & {
+  technologies: string | string[];
+};
+
 export default function ProjectsAdmin() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-  const { register, handleSubmit, reset, setValue } = useForm<Project>();
+  const { register, handleSubmit, reset, setValue } = useForm<ProjectForm>();
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -60,7 +64,7 @@ export default function ProjectsAdmin() {
     }
   };
 
-  const onSubmit = async (data: Project) => {
+  const onSubmit = async (data: ProjectForm) => {
     // Handle technologies array from string (comma separated)
     const techArray =
       typeof data.technologies === "string"
@@ -90,7 +94,7 @@ export default function ProjectsAdmin() {
       setEditingProject(project);
       setValue("title", project.title);
       setValue("description", project.description);
-      setValue("technologies", project.technologies.join(", ") as any); // Display as comma string
+      setValue("technologies", project.technologies.join(", "));
       setValue("liveLink", project.liveLink);
       setValue("repoLink", project.repoLink);
       setValue("image", project.image);

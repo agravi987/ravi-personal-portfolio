@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const exp = await Experience.create(body);
     return NextResponse.json(exp, { status: 201 });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }

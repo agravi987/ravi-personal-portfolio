@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     }
 
     // Save to database
-    const contact = await Contact.create({
+    await Contact.create({
       name,
       email,
       subject: subject || "",
@@ -66,11 +66,11 @@ export async function POST(req: Request) {
       { success: true, message: "Thank you for your message!" },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Contact submission error:", error);
 
     // Handle validation errors
-    if (error.name === "ValidationError") {
+    if (error instanceof Error && error.name === "ValidationError") {
       return NextResponse.json(
         { error: "Please fill all required fields correctly" },
         { status: 400 }

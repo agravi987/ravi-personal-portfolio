@@ -10,12 +10,14 @@ import {
   Award,
   Mail,
   LogOut,
+  UserRound,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Profile", href: "/admin/profile", icon: UserRound },
   { name: "Projects", href: "/admin/projects", icon: FolderKanban },
   { name: "Skills", href: "/admin/skills", icon: Wrench },
   { name: "Experience", href: "/admin/experience", icon: Briefcase },

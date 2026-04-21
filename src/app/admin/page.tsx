@@ -7,9 +7,16 @@ import {
   Wrench,
   Briefcase,
   Award,
+  UserRound,
 } from "lucide-react";
 
 const stats = [
+  {
+    name: "Profile",
+    href: "/admin/profile",
+    icon: UserRound,
+    count: "Edit",
+  },
   {
     name: "Projects",
     href: "/admin/projects",

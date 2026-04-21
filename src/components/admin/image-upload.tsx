@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
@@ -19,6 +19,10 @@ interface ImageUploadProps {
 export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(value || "");
+
+  useEffect(() => {
+    setPreviewUrl(value || "");
+  }, [value]);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {

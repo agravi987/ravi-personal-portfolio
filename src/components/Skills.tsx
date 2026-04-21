@@ -1,98 +1,135 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-interface Skill {
-  _id: string;
-  name: string;
-  category: string;
-  level?: number;
-}
+import { Cloud, Code2, Database, Server, Sparkles, Wrench } from "lucide-react";
+import type { PortfolioSkill } from "@/lib/portfolio-data";
+import { PlanetDecor } from "@/components/PlanetDecor";
 
 interface SkillsProps {
-  skills: Skill[];
+  skills: PortfolioSkill[];
 }
 
-/**
- * Skills Component
- * Displays technical skills categorized by type (Language, Framework, etc.).
- * Visualization includes progress bars for proficiency levels.
- */
+const iconForCategory = (category: string) => {
+  const normalized = category.toLowerCase();
+  if (normalized.includes("language")) return Code2;
+  if (normalized.includes("front") || normalized.includes("framework")) {
+    return Sparkles;
+  }
+  if (normalized.includes("back")) return Server;
+  if (normalized.includes("data") || normalized.includes("database")) {
+    return Database;
+  }
+  if (normalized.includes("cloud") || normalized.includes("devops")) {
+    return Cloud;
+  }
+  return Wrench;
+};
+
 export function Skills({ skills }: SkillsProps) {
-  const categories = Array.from(new Set(skills.map((s) => s.category)));
+  const categories = Array.from(new Set(skills.map((skill) => skill.category)));
+  const average =
+    Math.round(
+      skills.reduce((total, skill) => total + (skill.level || 80), 0) /
+        Math.max(skills.length, 1)
+    ) || 0;
 
   return (
-    <section id="skills" className="py-20 bg-muted/30 relative">
-      <div className="container px-4 mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12 text-glow">
-          Skills & Expertise
-        </h2>
+    <section id="skills" className="relative overflow-hidden bg-muted/30 py-24">
+      <PlanetDecor
+        name="uranus"
+        className="-right-28 bottom-10 w-44 opacity-10 blur-[0.3px] animate-planet-float dark:opacity-14 md:-right-20 md:w-60"
+      />
+      <div className="container mx-auto px-4">
+        <div className="mb-12 grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.24em] text-primary">
+              Capability matrix
+            </p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">
+              The stack behind the portfolio.
+            </h2>
+          </div>
+          <div className="rounded-xl border bg-background p-5 shadow-sm">
+            <div className="text-sm font-semibold text-muted-foreground">
+              Current operating profile
+            </div>
+            <div className="mt-2 flex items-end gap-3">
+              <span className="text-3xl font-bold">{average}%</span>
+              <span className="pb-1 text-sm text-muted-foreground">
+                average proficiency across visible skills
+              </span>
+            </div>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {categories.map((category, categoryIndex) => (
-            <motion.div
-              key={category}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
-              viewport={{ once: true }}
-              className="glow-border-hover bg-background border rounded-lg p-6 shadow-sm group"
-            >
-              <h3 className="text-xl font-semibold mb-4 text-primary group-hover:text-glow transition-all">
-                {category}
-              </h3>
-              <div className="space-y-3">
-                {skills
-                  .filter((s) => s.category === category)
-                  .map((skill, skillIndex) => (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {categories.map((category, categoryIndex) => {
+            const Icon = iconForCategory(category);
+            const categorySkills = skills.filter(
+              (skill) => skill.category === category
+            );
+
+            return (
+              <motion.div
+                key={category}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: categoryIndex * 0.08 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -6 }}
+                className="rounded-xl border bg-card p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+              >
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">{category}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {categorySkills.length} tools and practices
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {categorySkills.map((skill, skillIndex) => (
                     <motion.div
                       key={skill._id}
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -16 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{
                         duration: 0.3,
-                        delay: categoryIndex * 0.1 + skillIndex * 0.05,
+                        delay: categoryIndex * 0.06 + skillIndex * 0.04,
                       }}
                       viewport={{ once: true }}
-                      className="space-y-1"
                     >
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <span className="text-sm font-semibold">
                           {skill.name}
                         </span>
-                        {skill.level && (
-                          <span className="text-xs text-muted-foreground">
-                            {skill.level}%
-                          </span>
-                        )}
+                        <span className="text-xs font-bold text-muted-foreground">
+                          {skill.level || 80}%
+                        </span>
                       </div>
-                      {skill.level && (
-                        <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${skill.level}%` }}
-                            transition={{
-                              duration: 1,
-                              delay: categoryIndex * 0.1 + skillIndex * 0.05,
-                              ease: "easeOut",
-                            }}
-                            viewport={{ once: true }}
-                            className="h-full bg-gradient-to-r from-primary to-purple-600 rounded-full relative"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-                          </motion.div>
-                        </div>
-                      )}
-                      {!skill.level && (
-                        <span className="inline-block px-3 py-1 bg-accent text-accent-foreground rounded-full text-sm font-medium hover:bg-primary/20 transition-colors">
-                          {skill.name}
-                        </span>
-                      )}
+                      <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${skill.level || 80}%` }}
+                          transition={{
+                            duration: 0.9,
+                            delay: categoryIndex * 0.05 + skillIndex * 0.03,
+                            ease: "easeOut",
+                          }}
+                          viewport={{ once: true }}
+                          className="h-full rounded-full bg-gradient-to-r from-sky-500 via-emerald-500 to-amber-400"
+                        />
+                      </div>
                     </motion.div>
                   ))}
-              </div>
-            </motion.div>
-          ))}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

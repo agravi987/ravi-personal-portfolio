@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const ach = await Achievement.create(body);
     return NextResponse.json(ach, { status: 201 });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
