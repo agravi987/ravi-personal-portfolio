@@ -1,7 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Cloud, Code2, Database, Server, Sparkles, Wrench } from "lucide-react";
+import {
+  Cloud,
+  Code2,
+  Database,
+  ExternalLink,
+  FileText,
+  Server,
+  Sparkles,
+  Wrench,
+} from "lucide-react";
 import type { PortfolioSkill } from "@/lib/portfolio-data";
 import { PlanetDecor } from "@/components/PlanetDecor";
 
@@ -11,7 +20,7 @@ interface SkillsProps {
 
 const iconForCategory = (category: string) => {
   const normalized = category.toLowerCase();
-  if (normalized.includes("language")) return Code2;
+  if (normalized.includes("program")) return Code2;
   if (normalized.includes("front") || normalized.includes("framework")) {
     return Sparkles;
   }
@@ -32,6 +41,7 @@ export function Skills({ skills }: SkillsProps) {
       skills.reduce((total, skill) => total + (skill.level || 80), 0) /
         Math.max(skills.length, 1)
     ) || 0;
+  const featuredSkills = skills.filter((skill) => skill.featured).length;
 
   return (
     <section id="skills" className="relative overflow-hidden bg-muted/30 py-24">
@@ -46,18 +56,33 @@ export function Skills({ skills }: SkillsProps) {
               Capability matrix
             </p>
             <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">
-              The stack behind the portfolio.
+              The toolchain behind the portfolio.
             </h2>
           </div>
           <div className="rounded-xl border bg-background p-5 shadow-sm">
-            <div className="text-sm font-semibold text-muted-foreground">
-              Current operating profile
-            </div>
-            <div className="mt-2 flex items-end gap-3">
-              <span className="text-3xl font-bold">{average}%</span>
-              <span className="pb-1 text-sm text-muted-foreground">
-                average proficiency across visible skills
-              </span>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <div className="text-sm font-semibold text-muted-foreground">
+                  Current operating profile
+                </div>
+                <div className="mt-2 flex items-end gap-3">
+                  <span className="text-3xl font-bold">{average}%</span>
+                  <span className="pb-1 text-sm text-muted-foreground">
+                    average proficiency
+                  </span>
+                </div>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-muted-foreground">
+                  Focus tools
+                </div>
+                <div className="mt-2 flex items-end gap-3">
+                  <span className="text-3xl font-bold">{featuredSkills}</span>
+                  <span className="pb-1 text-sm text-muted-foreground">
+                    marked as current priority
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -91,7 +116,7 @@ export function Skills({ skills }: SkillsProps) {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {categorySkills.map((skill, skillIndex) => (
                     <motion.div
                       key={skill._id}
@@ -102,11 +127,19 @@ export function Skills({ skills }: SkillsProps) {
                         delay: categoryIndex * 0.06 + skillIndex * 0.04,
                       }}
                       viewport={{ once: true }}
+                      className="rounded-lg border border-border/60 bg-background/50 p-4"
                     >
                       <div className="mb-2 flex items-center justify-between gap-3">
-                        <span className="text-sm font-semibold">
-                          {skill.name}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold">
+                            {skill.name}
+                          </span>
+                          {skill.featured && (
+                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-primary">
+                              Focus
+                            </span>
+                          )}
+                        </div>
                         <span className="text-xs font-bold text-muted-foreground">
                           {skill.level || 80}%
                         </span>
@@ -124,6 +157,37 @@ export function Skills({ skills }: SkillsProps) {
                           className="h-full rounded-full bg-gradient-to-r from-sky-500 via-emerald-500 to-amber-400"
                         />
                       </div>
+
+                      {skill.note && (
+                        <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                          {skill.note}
+                        </p>
+                      )}
+
+                      {(skill.docsLink || skill.proofLink) && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {skill.docsLink && (
+                            <a
+                              href={skill.docsLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary"
+                            >
+                              <FileText className="h-3.5 w-3.5" /> Docs
+                            </a>
+                          )}
+                          {skill.proofLink && (
+                            <a
+                              href={skill.proofLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" /> Proof
+                            </a>
+                          )}
+                        </div>
+                      )}
                     </motion.div>
                   ))}
                 </div>

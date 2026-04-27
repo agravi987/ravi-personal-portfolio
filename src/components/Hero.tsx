@@ -21,7 +21,7 @@ interface HeroProps {
   profile: PortfolioProfile;
 }
 
-const orbitTech = ["Next.js", "MongoDB", "Node", "Cloud", "Git"];
+const orbitTech = ["Docker", "CI/CD", "Cloud", "Linux", "Next.js"];
 
 export function Hero({ usingFallback = false, profile }: HeroProps) {
   const [showPhoto, setShowPhoto] = useState(true);

@@ -6,20 +6,24 @@ import mongoose, { Schema, Document } from "mongoose";
  */
 export interface ISkill extends Document {
   name: string;
-  category: "Language" | "Framework" | "Database" | "Tool" | "Other";
+  category: string;
   level?: number; // 1-100
   icon?: string;
+  note?: string;
+  docsLink?: string;
+  proofLink?: string;
+  featured?: boolean;
 }
 
 const SkillSchema: Schema = new Schema({
   name: { type: String, required: true },
-  category: {
-    type: String,
-    required: true,
-    enum: ["Language", "Framework", "Database", "Tool", "Other"],
-  },
+  category: { type: String, required: true },
   level: { type: Number, min: 0, max: 100 },
   icon: { type: String }, // URL or icon name
+  note: { type: String },
+  docsLink: { type: String },
+  proofLink: { type: String },
+  featured: { type: Boolean, default: false },
 });
 
 const Skill =

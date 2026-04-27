@@ -5,8 +5,13 @@ export interface PortfolioProject {
   technologies: string[];
   liveLink?: string;
   repoLink?: string;
+  documentationLink?: string;
+  architectureLink?: string;
   image?: string;
   featured?: boolean;
+  category?: string;
+  status?: string;
+  highlights?: string[];
 }
 
 export interface PortfolioSkill {
@@ -14,6 +19,21 @@ export interface PortfolioSkill {
   name: string;
   category: string;
   level?: number;
+  note?: string;
+  docsLink?: string;
+  proofLink?: string;
+  featured?: boolean;
+}
+
+export interface PortfolioKnowledge {
+  _id: string;
+  title: string;
+  category: string;
+  summary: string;
+  topics: string[];
+  documentationLink?: string;
+  proofLink?: string;
+  featured?: boolean;
 }
 
 export interface PortfolioExperience {
@@ -54,45 +74,198 @@ export interface PortfolioProfile {
 export const fallbackProjects: PortfolioProject[] = [
   {
     _id: "fallback-platform",
-    title: "Rising Sun Experiment Platform",
+    title: "Cloud Portfolio Control Plane",
     description:
-      "A full-stack documentation system with admin workflows, SSR pages, MongoDB persistence, and production-ready CRUD operations.",
-    technologies: ["Next.js", "MongoDB", "App Router", "Cloudinary", "CRUD"],
+      "A portfolio platform with dynamic content, admin workflows, image pipelines, resilient fallbacks, and deploy-ready architecture for cloud-focused storytelling.",
+    technologies: ["Next.js", "MongoDB", "App Router", "Cloudinary", "SSR"],
     featured: true,
+    category: "Cloud Platform",
+    status: "Live",
+    highlights: [
+      "Dynamic content with admin-managed profile, skills, and projects",
+      "Fallback-safe homepage that still works when live data is unavailable",
+      "Reusable pages for focused views like projects, stack, and contact",
+    ],
   },
   {
-    _id: "fallback-blog",
-    title: "Rising Sun Blog App",
+    _id: "fallback-pipeline",
+    title: "Container Delivery Pipeline Lab",
     description:
-      "A MERN publishing dashboard focused on role-based content management, clean APIs, and fast editorial updates.",
-    technologies: ["React", "Node.js", "Express", "JWT", "Admin"],
+      "A deployment-focused lab for packaging applications, shipping updates, and documenting release flow with versioned source control practices.",
+    technologies: ["Docker", "GitHub Actions", "Node.js", "Nginx", "Linux"],
     featured: true,
+    category: "DevOps",
+    status: "In Progress",
+    highlights: [
+      "Container-first build strategy for consistent local and hosted environments",
+      "Release flow designed around CI checks and repeatable deployment steps",
+      "Operational documentation prepared alongside implementation work",
+    ],
   },
   {
     _id: "fallback-portfolio",
-    title: "Cloud Portfolio Command Center",
+    title: "Observability-Ready Admin Dashboard",
     description:
-      "This portfolio doubles as a live proof of skill: server-rendered data, admin controls, contact automation, and deploy-friendly architecture.",
-    technologies: ["Next.js", "DevOps", "Email", "MongoDB", "Vercel"],
+      "A full-stack dashboard experience that combines UI workflows, API design, database persistence, and cloud-minded operational thinking.",
+    technologies: ["React", "REST APIs", "MongoDB", "Monitoring", "Vercel"],
     featured: true,
+    category: "Full Stack",
+    status: "Live",
+    highlights: [
+      "Admin-friendly workflows with clean CRUD patterns",
+      "Deployment-aware frontend and backend integration",
+      "Structure prepared for metrics, logging, and service expansion",
+    ],
   },
 ];
 
 export const fallbackSkills: PortfolioSkill[] = [
-  { _id: "skill-js", name: "JavaScript", category: "Languages", level: 95 },
-  { _id: "skill-ts", name: "TypeScript", category: "Languages", level: 88 },
-  { _id: "skill-python", name: "Python", category: "Languages", level: 85 },
-  { _id: "skill-react", name: "React", category: "Frontend", level: 94 },
-  { _id: "skill-next", name: "Next.js", category: "Frontend", level: 92 },
-  { _id: "skill-tailwind", name: "Tailwind CSS", category: "Frontend", level: 90 },
-  { _id: "skill-node", name: "Node.js", category: "Backend", level: 86 },
-  { _id: "skill-express", name: "Express", category: "Backend", level: 84 },
-  { _id: "skill-api", name: "REST APIs", category: "Backend", level: 88 },
-  { _id: "skill-mongo", name: "MongoDB", category: "Data", level: 86 },
-  { _id: "skill-mysql", name: "MySQL", category: "Data", level: 80 },
-  { _id: "skill-cloudinary", name: "Cloudinary", category: "Cloud & DevOps", level: 82 },
-  { _id: "skill-git", name: "Git/GitHub", category: "Cloud & DevOps", level: 90 },
-  { _id: "skill-vercel", name: "Vercel Deployments", category: "Cloud & DevOps", level: 86 },
+  {
+    _id: "skill-js",
+    name: "JavaScript",
+    category: "Programming",
+    level: 95,
+    note: "Application logic, browser behavior, and service-side scripting.",
+    docsLink: "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
+  },
+  {
+    _id: "skill-ts",
+    name: "TypeScript",
+    category: "Programming",
+    level: 88,
+    note: "Typed frontend and backend code for safer refactors.",
+    docsLink: "https://www.typescriptlang.org/docs/",
+  },
+  {
+    _id: "skill-python",
+    name: "Python",
+    category: "Automation",
+    level: 85,
+    note: "Scripting, utilities, and problem-solving workflows.",
+    docsLink: "https://docs.python.org/3/",
+  },
+  {
+    _id: "skill-react",
+    name: "React",
+    category: "Frontend",
+    level: 94,
+    note: "Interactive interfaces and reusable UI systems.",
+    docsLink: "https://react.dev/",
+  },
+  {
+    _id: "skill-next",
+    name: "Next.js",
+    category: "Frontend",
+    level: 92,
+    note: "App Router, SSR, API routes, and production-ready UX.",
+    docsLink: "https://nextjs.org/docs",
+    featured: true,
+  },
+  {
+    _id: "skill-node",
+    name: "Node.js",
+    category: "Backend",
+    level: 86,
+    note: "Backend routes, runtime tooling, and services.",
+    docsLink: "https://nodejs.org/en/docs",
+  },
+  {
+    _id: "skill-api",
+    name: "REST APIs",
+    category: "Backend",
+    level: 88,
+    note: "Structured endpoints for apps, admin flows, and integrations.",
+  },
+  {
+    _id: "skill-mongo",
+    name: "MongoDB",
+    category: "Data",
+    level: 86,
+    note: "Document modeling and persistence for product workflows.",
+    docsLink: "https://www.mongodb.com/docs/",
+  },
+  {
+    _id: "skill-docker",
+    name: "Docker",
+    category: "Cloud & DevOps",
+    level: 84,
+    note: "Packaging services for reproducible environments.",
+    docsLink: "https://docs.docker.com/",
+    featured: true,
+  },
+  {
+    _id: "skill-github-actions",
+    name: "GitHub Actions",
+    category: "Cloud & DevOps",
+    level: 80,
+    note: "Automating checks, builds, and release steps.",
+    docsLink: "https://docs.github.com/actions",
+    featured: true,
+  },
+  {
+    _id: "skill-linux",
+    name: "Linux",
+    category: "Cloud & DevOps",
+    level: 82,
+    note: "Shell workflows, server setup, and operational basics.",
+  },
+  {
+    _id: "skill-git",
+    name: "Git / GitHub",
+    category: "Cloud & DevOps",
+    level: 90,
+    note: "Version control, collaboration, and release hygiene.",
+    docsLink: "https://docs.github.com/",
+  },
+  {
+    _id: "skill-vercel",
+    name: "Vercel Deployments",
+    category: "Cloud & DevOps",
+    level: 86,
+    note: "Fast deployment loops for Next.js applications.",
+    docsLink: "https://vercel.com/docs",
+  },
+];
+
+export const fallbackKnowledge: PortfolioKnowledge[] = [
+  {
+    _id: "knowledge-cicd",
+    title: "CI/CD Thinking",
+    category: "Delivery",
+    summary:
+      "I care about repeatable shipping: checks before release, predictable builds, and cleaner handoff from code to deployment.",
+    topics: ["Build pipelines", "Release checks", "Environment parity", "Rollback awareness"],
+    documentationLink: "https://docs.github.com/actions",
+    featured: true,
+  },
+  {
+    _id: "knowledge-containers",
+    title: "Containers and Runtime Consistency",
+    category: "Containers",
+    summary:
+      "I use container concepts to keep development and deployment environments closer together and easier to reproduce.",
+    topics: ["Docker images", "Compose workflows", "Service boundaries", "Runtime dependencies"],
+    documentationLink: "https://docs.docker.com/",
+    featured: true,
+  },
+  {
+    _id: "knowledge-cloud",
+    title: "Cloud Deployment Foundations",
+    category: "Cloud",
+    summary:
+      "My portfolio direction is moving toward hosting, deployment flow, infrastructure awareness, and cloud-native delivery habits.",
+    topics: ["Hosting", "Environment variables", "Storage choices", "Deployment targets"],
+    documentationLink: "https://aws.amazon.com/getting-started/",
+  },
+  {
+    _id: "knowledge-monitoring",
+    title: "Observability Basics",
+    category: "Monitoring",
+    summary:
+      "I think about what happens after launch too: visibility, failure signals, and enough telemetry to debug real issues.",
+    topics: ["Logs", "Health checks", "Metrics", "Incident debugging"],
+    documentationLink: "https://prometheus.io/docs/introduction/overview/",
+  },
 ];
 
 export const fallbackExperience: PortfolioExperience[] = [
@@ -148,18 +321,18 @@ export const fallbackAchievements: PortfolioAchievement[] = [
 
 export const fallbackProfile: PortfolioProfile = {
   fullName: "Ravi Agrahari",
-  role: "Full-stack cloud developer",
-  shortTitle: "Full Stack Developer",
-  heroBadge: "Full Stack Developer",
-  heroHeadline: "Building clean web apps with cloud-ready architecture.",
+  role: "Cloud and DevOps focused full-stack developer",
+  shortTitle: "Cloud & DevOps Engineer",
+  heroBadge: "Cloud, DevOps, and Full-Stack Delivery",
+  heroHeadline: "I build apps, automate delivery, and prepare systems to ship well.",
   heroDescription:
-    "I work with Next.js, MERN, APIs, databases, admin dashboards, uploads, and deployment-focused product builds.",
+    "My work sits at the point where product development meets deployment thinking: full-stack apps, admin systems, automation, documentation, and cloud-ready architecture.",
   aboutHeading:
-    "A developer who can design the screen, wire the API, and prepare the system to ship.",
+    "A developer moving deeper into cloud and DevOps without losing the full-stack edge.",
   aboutIntro:
     "I am a Computer Science Engineering student (2023 - 2027) at Sri Eshwar College of Engineering, Coimbatore, with a CGPA of 9.01. My strongest zone is turning practical product ideas into working full-stack applications.",
   aboutDetails:
-    "I enjoy the complete path: polished UI, data models, API routes, upload pipelines, admin workflows, and deployment details. That full journey is what makes a portfolio feel professional instead of decorative.",
+    "I enjoy the complete path: polished UI, data models, API routes, upload pipelines, admin workflows, deployment details, and the operational layer around release quality. That full journey is what makes a portfolio feel professional instead of decorative.",
   email: "hello@ravi.dev",
   location: "India, available for remote-first teams",
   githubUsername: "raviagrahari",

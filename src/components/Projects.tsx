@@ -6,11 +6,14 @@ import Link from "next/link";
 import {
   Cloud,
   ExternalLink,
+  FileText,
+  FolderGit2,
   Github,
   GitBranch,
   Layers,
-  X,
+  Network,
   Server,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { PortfolioProject } from "@/lib/portfolio-data";
@@ -21,11 +24,29 @@ interface ProjectsProps {
   showPageLink?: boolean;
 }
 
-const projectAccentIcons = [Cloud, Server, GitBranch, Layers];
+const projectAccentIcons = [Cloud, Server, GitBranch, Layers, Network];
+
+const inferProjectCategory = (project: PortfolioProject) => {
+  if (project.category) return project.category;
+
+  const tech = project.technologies.join(" ").toLowerCase();
+  if (tech.includes("docker") || tech.includes("github actions")) {
+    return "DevOps";
+  }
+  if (tech.includes("mongo") || tech.includes("database")) {
+    return "Data Platform";
+  }
+  if (tech.includes("next") || tech.includes("react")) {
+    return "Full Stack";
+  }
+
+  return "Build";
+};
 
 export function Projects({ projects, showPageLink = false }: ProjectsProps) {
   const [selectedProject, setSelectedProject] =
     useState<PortfolioProject | null>(null);
+  const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
     if (!selectedProject) return;
@@ -44,6 +65,18 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedProject]);
+
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(projects.map(inferProjectCategory)))],
+    [projects]
+  );
+
+  const visibleProjects = useMemo(() => {
+    if (activeFilter === "All") return projects;
+    return projects.filter(
+      (project) => inferProjectCategory(project) === activeFilter
+    );
+  }, [activeFilter, projects]);
 
   return (
     <section
@@ -69,26 +102,42 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
             </h2>
           </div>
           <p className="max-w-lg leading-7 text-slate-700 dark:text-slate-300">
-            Clean interfaces with APIs, data, admin flows, and deployment
-            thinking.
+            Work that connects product UI, backend logic, admin control, and
+            deployment thinking in one delivery path.
           </p>
         </div>
 
-        {showPageLink && (
-          <div className="mb-6">
+        <div className="mb-8 flex flex-wrap items-center gap-3">
+          {categories.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setActiveFilter(category)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                activeFilter === category
+                  ? "bg-cyan-600 text-white shadow-lg shadow-cyan-700/20 dark:bg-cyan-300 dark:text-slate-950"
+                  : "border border-cyan-900/10 bg-white/75 text-slate-700 hover:border-cyan-500/40 hover:text-cyan-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+
+          {showPageLink && (
             <Link
               href="/projects"
               className="inline-flex items-center gap-2 rounded-full border border-cyan-900/15 bg-white/75 px-4 py-2 text-sm font-bold text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
             >
               More Projects <ExternalLink className="h-4 w-4" />
             </Link>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {projects.map((project, index) => {
+          {visibleProjects.map((project, index) => {
             const AccentIcon =
               projectAccentIcons[index % projectAccentIcons.length];
+            const category = inferProjectCategory(project);
 
             return (
               <motion.article
@@ -128,7 +177,7 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                             <AccentIcon className="h-6 w-6" />
                           </div>
                           <span className="rounded-full bg-cyan-700/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-cyan-800 backdrop-blur dark:bg-cyan-300/10 dark:text-cyan-100">
-                            Cloud
+                            {category}
                           </span>
                         </div>
                         <div className="grid gap-2">
@@ -141,7 +190,16 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                   </div>
 
                   <div className="flex flex-1 flex-col p-6">
-                    <h3 className="text-lg font-bold tracking-tight text-slate-950 group-hover:text-cyan-700 dark:text-white dark:group-hover:text-cyan-300">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full border border-cyan-900/10 bg-cyan-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800 dark:border-white/10 dark:bg-white/10 dark:text-cyan-100">
+                        {category}
+                      </span>
+                      <span className="rounded-full border border-cyan-900/10 bg-white/70 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                        {project.status || "Live"}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-4 text-lg font-bold tracking-tight text-slate-950 group-hover:text-cyan-700 dark:text-white dark:group-hover:text-cyan-300">
                       {project.title}
                     </h3>
 
@@ -222,14 +280,16 @@ function ProjectCaseStudyModal({
     const hasNode = tech.some(
       (item) => item.includes("node") || item.includes("express")
     );
+    const category = inferProjectCategory(project);
 
     return [
+      category,
       hasNext ? "Server-rendered UI" : "Responsive frontend",
       hasNode ? "API layer" : "Reusable app logic",
       hasMongo ? "Database models" : "Structured data flow",
       "Deployment-ready workflow",
     ];
-  }, [project.technologies]);
+  }, [project]);
 
   return (
     <div
@@ -253,6 +313,14 @@ function ProjectCaseStudyModal({
               Case Study
             </p>
             <h3 className="mt-2 text-2xl font-bold">{project.title}</h3>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="rounded-full border border-cyan-900/10 bg-cyan-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-cyan-800 dark:border-white/10 dark:bg-white/10 dark:text-cyan-100">
+                {inferProjectCategory(project)}
+              </span>
+              <span className="rounded-full border border-cyan-900/10 bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                {project.status || "Live"}
+              </span>
+            </div>
           </div>
           <button
             type="button"
@@ -305,6 +373,24 @@ function ProjectCaseStudyModal({
           </div>
         </div>
 
+        {project.highlights && project.highlights.length > 0 && (
+          <div className="mt-6">
+            <h4 className="text-sm font-bold uppercase tracking-[0.16em] text-muted-foreground">
+              Delivery Notes
+            </h4>
+            <div className="mt-3 grid gap-2">
+              {project.highlights.map((highlight) => (
+                <div
+                  key={highlight}
+                  className="rounded-lg border bg-background/80 px-3 py-2 text-sm text-muted-foreground"
+                >
+                  {highlight}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 flex flex-wrap gap-2">
           {project.technologies.map((tech) => (
             <span
@@ -335,6 +421,26 @@ function ProjectCaseStudyModal({
               className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition hover:border-cyan-500/50 hover:text-primary"
             >
               <Github className="h-4 w-4" /> Source Code
+            </a>
+          )}
+          {project.documentationLink && (
+            <a
+              href={project.documentationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition hover:border-cyan-500/50 hover:text-primary"
+            >
+              <FileText className="h-4 w-4" /> Documentation
+            </a>
+          )}
+          {project.architectureLink && (
+            <a
+              href={project.architectureLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition hover:border-cyan-500/50 hover:text-primary"
+            >
+              <FolderGit2 className="h-4 w-4" /> Architecture
             </a>
           )}
         </div>

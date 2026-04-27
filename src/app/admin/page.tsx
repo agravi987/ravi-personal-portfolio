@@ -1,68 +1,170 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
-  FolderKanban,
-  Wrench,
-  Briefcase,
   Award,
+  Briefcase,
+  FileText,
+  FolderKanban,
+  Mail,
   UserRound,
+  Wrench,
 } from "lucide-react";
 
-const stats = [
+type StatCount = {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  count: string;
+  helper: string;
+};
+
+const initialStats: StatCount[] = [
   {
-    name: "Profile",
+    label: "Profile",
     href: "/admin/profile",
     icon: UserRound,
-    count: "Edit",
+    count: "Ready",
+    helper: "Public identity settings",
   },
   {
-    name: "Projects",
+    label: "Projects",
     href: "/admin/projects",
     icon: FolderKanban,
-    count: "Manage",
+    count: "--",
+    helper: "Case studies and delivery links",
   },
-  { name: "Skills", href: "/admin/skills", icon: Wrench, count: "Manage" },
   {
-    name: "Experience",
+    label: "Skills",
+    href: "/admin/skills",
+    icon: Wrench,
+    count: "--",
+    helper: "Tools, notes, docs, proof",
+  },
+  {
+    label: "Knowledge",
+    href: "/admin/knowledge",
+    icon: FileText,
+    count: "--",
+    helper: "Topics and documentation refs",
+  },
+  {
+    label: "Experience",
     href: "/admin/experience",
     icon: Briefcase,
-    count: "Manage",
+    count: "--",
+    helper: "Timeline and roles",
   },
   {
-    name: "Achievements",
+    label: "Achievements",
     href: "/admin/achievements",
     icon: Award,
-    count: "Manage",
+    count: "--",
+    helper: "Wins and certifications",
+  },
+  {
+    label: "Contacts",
+    href: "/admin/contacts",
+    icon: Mail,
+    count: "--",
+    helper: "Inbox submissions",
   },
 ];
 
 export default function AdminDashboard() {
-  return (
-    <div>
-      <h2 className="text-3xl font-bold mb-8">Welcome back, Admin</h2>
+  const [stats, setStats] = useState(initialStats);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  useEffect(() => {
+    let ignore = false;
+
+    const loadCounts = async () => {
+      try {
+        const responses = await Promise.all([
+          fetch("/api/projects"),
+          fetch("/api/skills"),
+          fetch("/api/knowledge"),
+          fetch("/api/experience"),
+          fetch("/api/achievements"),
+          fetch("/api/contacts"),
+        ]);
+
+        const [projects, skills, knowledge, experience, achievements, contacts] =
+          await Promise.all(
+            responses.map(async (response) => {
+              if (!response.ok) return [];
+              return response.json();
+            })
+          );
+
+        if (ignore) return;
+
+        setStats((current) =>
+          current.map((stat) => {
+            switch (stat.label) {
+              case "Projects":
+                return { ...stat, count: String(projects.length) };
+              case "Skills":
+                return { ...stat, count: String(skills.length) };
+              case "Knowledge":
+                return { ...stat, count: String(knowledge.length) };
+              case "Experience":
+                return { ...stat, count: String(experience.length) };
+              case "Achievements":
+                return { ...stat, count: String(achievements.length) };
+              case "Contacts":
+                return { ...stat, count: String(contacts.length) };
+              default:
+                return stat;
+            }
+          })
+        );
+      } catch (error) {
+        console.error("Failed to load dashboard counts", error);
+      }
+    };
+
+    loadCounts();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-3xl font-bold">Welcome back, Admin</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          This dashboard now tracks the portfolio content system, not just the
+          visual shell. Use it to keep your cloud and DevOps story current.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Link
-              key={stat.name}
+              key={stat.label}
               href={stat.href}
-              className="bg-card border rounded-lg p-6 hover:shadow-md transition-shadow group"
+              className="group rounded-xl border bg-card p-6 transition hover:-translate-y-1 hover:shadow-md"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-primary/10 rounded-full text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="rounded-full bg-primary/10 p-2 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <Icon size={24} />
                 </div>
                 <ArrowRight
                   size={20}
-                  className="text-muted-foreground group-hover:text-primary transition-colors"
+                  className="text-muted-foreground transition-colors group-hover:text-primary"
                 />
               </div>
-              <h3 className="text-lg font-semibold">{stat.name}</h3>
-              <p className="text-sm text-muted-foreground">{stat.count}</p>
+              <div className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {stat.label}
+              </div>
+              <div className="mt-2 text-3xl font-bold">{stat.count}</div>
+              <p className="mt-2 text-sm text-muted-foreground">{stat.helper}</p>
             </Link>
           );
         })}

@@ -10,8 +10,13 @@ export interface IProject extends Document {
   technologies: string[];
   liveLink?: string;
   repoLink?: string;
+  documentationLink?: string;
+  architectureLink?: string;
   image?: string;
   featured: boolean;
+  category?: string;
+  status?: string;
+  highlights?: string[];
   createdAt: Date;
 }
 
@@ -22,8 +27,13 @@ const ProjectSchema: Schema = new Schema(
     technologies: { type: [String], required: true },
     liveLink: { type: String },
     repoLink: { type: String },
+    documentationLink: { type: String },
+    architectureLink: { type: String },
     image: { type: String },
     featured: { type: Boolean, default: false },
+    category: { type: String, default: "Full Stack" },
+    status: { type: String, default: "Live" },
+    highlights: { type: [String], default: [] },
   },
   { timestamps: true }
 );

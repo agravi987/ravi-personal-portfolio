@@ -4,52 +4,56 @@ import { useEffect, useState } from "react";
 import { Edit, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-interface Skill {
+interface KnowledgeItem {
   _id: string;
-  name: string;
+  title: string;
   category: string;
-  level: number;
-  note?: string;
-  docsLink?: string;
+  summary: string;
+  topics: string[];
+  documentationLink?: string;
   proofLink?: string;
   featured?: boolean;
 }
 
+type KnowledgeForm = Omit<KnowledgeItem, "topics"> & {
+  topics: string | string[];
+};
+
 const CATEGORIES = [
-  "Programming",
-  "Frontend",
-  "Backend",
-  "Data",
-  "Cloud & DevOps",
-  "Automation",
+  "Cloud",
+  "Containers",
+  "Delivery",
+  "Monitoring",
   "Security",
+  "Automation",
+  "Documentation",
   "Other",
 ];
 
 const inputClass =
   "w-full rounded-md border bg-background px-3 py-2 outline-none transition focus:border-primary/60 focus:ring-4 focus:ring-primary/10";
 
-export default function SkillsAdmin() {
-  const [skills, setSkills] = useState<Skill[]>([]);
+export default function KnowledgeAdminPage() {
+  const [items, setItems] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [editingItem, setEditingItem] = useState<KnowledgeItem | null>(null);
 
-  const { register, handleSubmit, reset, setValue } = useForm<Skill>({
+  const { register, handleSubmit, reset, setValue } = useForm<KnowledgeForm>({
     defaultValues: {
-      category: "Programming",
-      level: 80,
+      category: "Cloud",
       featured: false,
+      topics: "",
     },
   });
 
-  const fetchSkills = async () => {
+  const fetchItems = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/skills");
+      const res = await fetch("/api/knowledge");
       if (res.ok) {
         const data = await res.json();
-        setSkills(data);
+        setItems(data);
       }
     } finally {
       setLoading(false);
@@ -57,71 +61,83 @@ export default function SkillsAdmin() {
   };
 
   useEffect(() => {
-    fetchSkills();
+    fetchItems();
   }, []);
 
   const onDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this skill?")) return;
+    if (!confirm("Are you sure you want to delete this knowledge entry?")) {
+      return;
+    }
 
     try {
-      const res = await fetch(`/api/skills/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/knowledge/${id}`, { method: "DELETE" });
 
       if (!res.ok) {
         const error = await res.json();
-        alert(`Failed to delete skill: ${error.error || "Unknown error"}`);
+        alert(
+          `Failed to delete knowledge entry: ${error.error || "Unknown error"}`
+        );
         return;
       }
 
-      fetchSkills();
+      fetchItems();
     } catch (error) {
       console.error("Delete error:", error);
-      alert("Failed to delete skill. Please try again.");
+      alert("Failed to delete knowledge entry. Please try again.");
     }
   };
 
-  const onSubmit = async (data: Skill) => {
-    try {
-      const url = editingSkill ? `/api/skills/${editingSkill._id}` : "/api/skills";
-      const method = editingSkill ? "PUT" : "POST";
+  const onSubmit = async (data: KnowledgeForm) => {
+    const topics =
+      typeof data.topics === "string"
+        ? data.topics
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : data.topics;
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+    const payload = { ...data, topics };
+    const url = editingItem
+      ? `/api/knowledge/${editingItem._id}`
+      : "/api/knowledge";
+    const method = editingItem ? "PUT" : "POST";
 
-      if (!res.ok) {
-        const error = await res.json();
-        alert(`Failed to save skill: ${error.error || "Unknown error"}`);
-        return;
-      }
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      closeModal();
-      fetchSkills();
-    } catch (error) {
-      console.error("Save error:", error);
-      alert("Failed to save skill. Please try again.");
+    if (!res.ok) {
+      const error = await res.json();
+      alert(
+        `Failed to save knowledge entry: ${error.error || "Unknown error"}`
+      );
+      return;
     }
+
+    closeModal();
+    fetchItems();
   };
 
-  const openModal = (skill?: Skill) => {
-    if (skill) {
-      setEditingSkill(skill);
-      setValue("name", skill.name);
-      setValue("category", skill.category);
-      setValue("level", skill.level);
-      setValue("note", skill.note);
-      setValue("docsLink", skill.docsLink);
-      setValue("proofLink", skill.proofLink);
-      setValue("featured", Boolean(skill.featured));
+  const openModal = (item?: KnowledgeItem) => {
+    if (item) {
+      setEditingItem(item);
+      setValue("title", item.title);
+      setValue("category", item.category);
+      setValue("summary", item.summary);
+      setValue("topics", item.topics.join(", "));
+      setValue("documentationLink", item.documentationLink);
+      setValue("proofLink", item.proofLink);
+      setValue("featured", Boolean(item.featured));
     } else {
-      setEditingSkill(null);
+      setEditingItem(null);
       reset({
-        category: "Programming",
-        level: 80,
+        category: "Cloud",
         featured: false,
+        topics: "",
       });
     }
     setIsModalOpen(true);
@@ -129,11 +145,11 @@ export default function SkillsAdmin() {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingSkill(null);
+    setEditingItem(null);
     reset({
-      category: "Programming",
-      level: 80,
+      category: "Cloud",
       featured: false,
+      topics: "",
     });
   };
 
@@ -141,17 +157,17 @@ export default function SkillsAdmin() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Skills</h2>
+          <h2 className="text-2xl font-bold">Knowledge</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage tools with notes, docs, proof links, and focus tags so the
-            stack tells a stronger engineering story.
+            Capture the topics you know, the docs you use, and the proof that
+            backs your cloud and DevOps direction.
           </p>
         </div>
         <button
           onClick={() => openModal()}
           className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
         >
-          <Plus size={18} /> Add Skill
+          <Plus size={18} /> Add Knowledge
         </button>
       </div>
 
@@ -160,50 +176,44 @@ export default function SkillsAdmin() {
           <Loader2 className="animate-spin" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {skills.map((skill) => (
+        <div className="grid gap-4">
+          {items.map((item) => (
             <div
-              key={skill._id}
-              className="flex justify-between gap-4 rounded-lg border bg-card p-4"
+              key={item._id}
+              className="flex flex-col justify-between gap-4 rounded-lg border bg-card p-4 md:flex-row md:items-start"
             >
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-bold">{skill.name}</h3>
+                  <h3 className="text-lg font-bold">{item.title}</h3>
                   <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">
-                    {skill.category}
+                    {item.category}
                   </span>
-                  {skill.featured && (
+                  {item.featured && (
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                       Focus
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Level: {skill.level || 80}%
+                <p className="max-w-3xl text-sm text-muted-foreground">
+                  {item.summary}
                 </p>
-                {skill.note && (
-                  <p className="max-w-md text-sm text-muted-foreground">
-                    {skill.note}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  {skill.docsLink && (
-                    <span className="rounded-full border px-2 py-1">Docs</span>
-                  )}
-                  {skill.proofLink && (
-                    <span className="rounded-full border px-2 py-1">Proof</span>
-                  )}
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {item.topics.map((topic) => (
+                    <span key={topic} className="rounded bg-secondary px-2 py-1">
+                      {topic}
+                    </span>
+                  ))}
                 </div>
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => openModal(skill)}
+                  onClick={() => openModal(item)}
                   className="rounded-md p-2 hover:bg-accent"
                 >
                   <Edit size={16} />
                 </button>
                 <button
-                  onClick={() => onDelete(skill._id)}
+                  onClick={() => onDelete(item._id)}
                   className="rounded-md p-2 text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 size={16} />
@@ -219,7 +229,7 @@ export default function SkillsAdmin() {
           <div className="w-full max-w-xl rounded-lg bg-background shadow-lg">
             <div className="flex items-center justify-between border-b p-4">
               <h3 className="text-xl font-bold">
-                {editingSkill ? "Edit Skill" : "Add Skill"}
+                {editingItem ? "Edit Knowledge" : "Add Knowledge"}
               </h3>
               <button onClick={closeModal}>
                 <X />
@@ -228,9 +238,9 @@ export default function SkillsAdmin() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Name">
+                <Field label="Title">
                   <input
-                    {...register("name", { required: true })}
+                    {...register("title", { required: true })}
                     className={inputClass}
                   />
                 </Field>
@@ -248,25 +258,27 @@ export default function SkillsAdmin() {
                 </Field>
               </div>
 
-              <Field label="Level (0-100)">
-                <input
-                  type="number"
-                  {...register("level", { min: 0, max: 100, valueAsNumber: true })}
-                  className={inputClass}
+              <Field label="Summary">
+                <textarea
+                  {...register("summary", { required: true })}
+                  className={`${inputClass} h-28`}
                 />
               </Field>
 
-              <Field label="Note">
-                <textarea
-                  {...register("note")}
-                  className={`${inputClass} h-24`}
-                  placeholder="What you use this tool for, or where it fits in your workflow."
+              <Field label="Topics (comma separated)">
+                <input
+                  {...register("topics", { required: true })}
+                  className={inputClass}
+                  placeholder="Docker images, service boundaries, runtime dependencies"
                 />
               </Field>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Docs Link">
-                  <input {...register("docsLink")} className={inputClass} />
+                <Field label="Documentation Link">
+                  <input
+                    {...register("documentationLink")}
+                    className={inputClass}
+                  />
                 </Field>
                 <Field label="Proof Link">
                   <input {...register("proofLink")} className={inputClass} />
@@ -275,7 +287,7 @@ export default function SkillsAdmin() {
 
               <label className="flex items-center gap-2 text-sm font-medium">
                 <input type="checkbox" {...register("featured")} className="h-4 w-4" />
-                Mark as current focus skill
+                Mark as focus area
               </label>
 
               <div className="flex justify-end gap-2 pt-4">
