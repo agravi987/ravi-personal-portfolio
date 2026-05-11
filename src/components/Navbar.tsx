@@ -120,6 +120,7 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
           className="rounded-lg p-2 transition hover:bg-accent md:hidden"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle navigation"
+          aria-controls="mobile-nav"
           aria-expanded={isOpen}
         >
           {isOpen ? <X /> : <Menu />}
@@ -127,7 +128,7 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
       </div>
 
       {isOpen && (
-        <div className="border-b bg-background md:hidden">
+        <div id="mobile-nav" role="dialog" aria-modal="true" aria-label="mobile navigation" className="border-b bg-background md:hidden">
           <div className="flex flex-col gap-2 p-4">
             {navLinks.map((link) => (
               <Link

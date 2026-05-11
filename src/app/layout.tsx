@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><Providers>{children}</Providers></div>
       </body>
     </html>
   );
