@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+jest.config.js
 
 # next.js
 /.next/
@@ -23,6 +24,8 @@
 # misc
 .DS_Store
 *.pem
+.claude/
+docs/superpowers/plans/
 
 # debug
 npm-debug.log*
