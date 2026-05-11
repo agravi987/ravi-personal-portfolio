@@ -1,14 +1,30 @@
 import { Navbar } from "@/components/Navbar";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { CommandPalette } from "@/components/CommandPalette";
 import Link from "next/link";
-import type { PortfolioProfile } from "@/lib/portfolio-data";
+import type {
+  PortfolioExperience,
+  PortfolioKnowledge,
+  PortfolioProfile,
+  PortfolioProject,
+  PortfolioSkill,
+} from "@/lib/portfolio-data";
+
+type CommandPaletteData = {
+  projects?: PortfolioProject[];
+  skills?: PortfolioSkill[];
+  knowledge?: PortfolioKnowledge[];
+  experience?: PortfolioExperience[];
+};
 
 export function PageFrame({
   children,
   profile,
+  commandData,
 }: {
   children: React.ReactNode;
   profile?: PortfolioProfile;
+  commandData?: CommandPaletteData;
 }) {
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -20,6 +36,7 @@ export function PageFrame({
       </a>
       <Navbar profile={profile} />
       <ScrollToTop />
+      <CommandPalette profile={profile} data={commandData} />
       <div id="content" className="relative z-10 pb-20 md:pb-0">
         {children}
       </div>

@@ -8,7 +8,7 @@ export default async function AboutPage() {
   const { data } = await getPortfolioData();
 
   return (
-    <PageFrame profile={data.profile}>
+    <PageFrame profile={data.profile} commandData={data}>
       <About profile={data.profile} />
     </PageFrame>
   );

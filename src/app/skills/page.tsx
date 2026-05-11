@@ -8,7 +8,7 @@ export default async function SkillsPage() {
   const { data } = await getPortfolioData();
 
   return (
-    <PageFrame profile={data.profile}>
+    <PageFrame profile={data.profile} commandData={data}>
       <Skills skills={data.skills} />
     </PageFrame>
   );

@@ -8,7 +8,7 @@ export default async function KnowledgePage() {
   const { data } = await getPortfolioData();
 
   return (
-    <PageFrame profile={data.profile}>
+    <PageFrame profile={data.profile} commandData={data}>
       <Knowledge items={data.knowledge} />
     </PageFrame>
   );

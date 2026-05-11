@@ -4,7 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "./theme-toggle";
-import { FolderGit2, Home, Layers3, Mail, Menu, UserRound, X } from "lucide-react";
+import {
+  FolderGit2,
+  Home,
+  Layers3,
+  Mail,
+  Menu,
+  Search,
+  UserRound,
+  X,
+} from "lucide-react";
 import type { PortfolioProfile } from "@/lib/portfolio-data";
 
 const navLinks = [
@@ -30,6 +39,10 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState("home");
   const pathname = usePathname();
+
+  const openCommandMenu = () => {
+    window.dispatchEvent(new Event("portfolio-command-open"));
+  };
 
   useEffect(() => {
     const updateScrollProgress = () => {
@@ -122,6 +135,18 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
           >
             Hire Ravi
           </Link>
+          <button
+            type="button"
+            onClick={openCommandMenu}
+            className="focus-ring hidden items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold text-muted-foreground transition hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary lg:inline-flex"
+            aria-label="Open command menu"
+          >
+            <Search className="h-4 w-4" />
+            <span>Explore</span>
+            <kbd className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-bold">
+              Ctrl K
+            </kbd>
+          </button>
           <ThemeToggle />
         </div>
 
@@ -157,6 +182,22 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
                 {link.name}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                openCommandMenu();
+              }}
+              className="focus-ring flex items-center justify-between rounded-lg border px-3 py-3 text-left text-sm font-semibold transition hover:border-primary/40 hover:text-primary"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                Quick search
+              </span>
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                Ctrl K
+              </span>
+            </button>
             <div className="mt-2 flex items-center justify-between border-t pt-4">
               <Link
                 href="/contact"

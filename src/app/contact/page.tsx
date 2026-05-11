@@ -8,7 +8,7 @@ export default async function ContactPage() {
   const { data } = await getPortfolioData();
 
   return (
-    <PageFrame profile={data.profile}>
+    <PageFrame profile={data.profile} commandData={data}>
       <Contact
         achievements={data.achievements}
         showAchievements={false}

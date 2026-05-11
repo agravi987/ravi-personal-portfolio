@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { PortfolioAchievement } from "@/lib/portfolio-data";
 import type { PortfolioProfile } from "@/lib/portfolio-data";
+import { DetailSheet } from "@/components/DetailSheet";
 
 interface ContactProps {
   achievements: PortfolioAchievement[];
@@ -61,6 +62,8 @@ export function Contact({
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [selectedAchievement, setSelectedAchievement] =
+    useState<PortfolioAchievement | null>(null);
   const email = profile?.email || "hello@ravi.dev";
 
   const {
@@ -138,9 +141,19 @@ export function Contact({
               {achievements.map((achievement) => (
                 <article
                   key={achievement._id}
-                  className="group w-[82vw] max-w-[22rem] shrink-0 snap-start overflow-hidden rounded-lg border bg-background shadow-sm transition duration-300 hover:-translate-y-2 hover:rotate-[0.4deg] hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 sm:w-[21rem] md:w-[22rem]"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedAchievement(achievement)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedAchievement(achievement);
+                    }
+                  }}
+                  className="focus-ring group w-[74vw] max-w-[19rem] shrink-0 snap-start overflow-hidden rounded-lg border bg-background shadow-sm transition duration-300 hover:-translate-y-2 hover:rotate-[0.4deg] hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 sm:w-[19rem]"
+                  aria-label={`View achievement details for ${achievement.title}`}
                 >
-                  <div className="relative h-36 border-b bg-[linear-gradient(135deg,rgba(245,158,11,0.18),rgba(14,165,233,0.14),rgba(16,185,129,0.14))] sm:h-44">
+                  <div className="relative h-32 border-b bg-[linear-gradient(135deg,rgba(245,158,11,0.18),rgba(14,165,233,0.14),rgba(16,185,129,0.14))]">
                     {achievement.certificateImage ? (
                       <Image
                         src={achievement.certificateImage}
@@ -158,13 +171,16 @@ export function Contact({
                     )}
                   </div>
 
-                  <div className="p-4 sm:p-6">
+                  <div className="p-4">
                     <h3 className="text-lg font-bold group-hover:text-primary">
                       {achievement.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">
                       {achievement.description}
                     </p>
+                    <div className="mt-4 border-t pt-3 text-xs font-bold uppercase tracking-[0.14em] text-primary">
+                      View details
+                    </div>
                   </div>
                 </article>
               ))}
@@ -421,6 +437,49 @@ export function Contact({
           </div>
         </div>
       </div>
+      {selectedAchievement && (
+        <AchievementDetailSheet
+          achievement={selectedAchievement}
+          onClose={() => setSelectedAchievement(null)}
+        />
+      )}
     </section>
+  );
+}
+
+function AchievementDetailSheet({
+  achievement,
+  onClose,
+}: {
+  achievement: PortfolioAchievement;
+  onClose: () => void;
+}) {
+  return (
+    <DetailSheet
+      title={achievement.title}
+      eyebrow="Achievement"
+      onClose={onClose}
+    >
+      <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
+        <div className="relative min-h-48 overflow-hidden rounded-lg border bg-[linear-gradient(135deg,rgba(245,158,11,0.18),rgba(14,165,233,0.14),rgba(16,185,129,0.14))]">
+          {achievement.certificateImage ? (
+            <Image
+              src={achievement.certificateImage}
+              alt={achievement.title}
+              fill
+              sizes="(min-width: 768px) 35vw, 90vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full min-h-48 items-center justify-center">
+              <Award className="h-14 w-14 text-primary" />
+            </div>
+          )}
+        </div>
+        <p className="leading-7 text-muted-foreground">
+          {achievement.description}
+        </p>
+      </div>
+    </DetailSheet>
   );
 }

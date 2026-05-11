@@ -8,7 +8,7 @@ export default async function ExperiencePage() {
   const { data } = await getPortfolioData();
 
   return (
-    <PageFrame profile={data.profile}>
+    <PageFrame profile={data.profile} commandData={data}>
       <Experience experience={data.experience} />
     </PageFrame>
   );

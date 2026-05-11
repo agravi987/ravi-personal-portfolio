@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
+  ArrowRight,
   Cloud,
   Code2,
   Database,
@@ -13,6 +15,9 @@ import {
 } from "lucide-react";
 import type { PortfolioSkill } from "@/lib/portfolio-data";
 import { PlanetDecor } from "@/components/PlanetDecor";
+import { DetailSheet } from "@/components/DetailSheet";
+import { TechIcon } from "@/components/TechIcon";
+import { portfolioItemId } from "@/lib/portfolio-links";
 
 interface SkillsProps {
   skills: PortfolioSkill[];
@@ -35,6 +40,7 @@ const iconForCategory = (category: string) => {
 };
 
 export function Skills({ skills }: SkillsProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categories = Array.from(new Set(skills.map((skill) => skill.category)));
   const average =
     Math.round(
@@ -95,8 +101,9 @@ export function Skills({ skills }: SkillsProps) {
             );
 
             return (
-              <motion.div
+              <motion.article
                 key={category}
+                id={portfolioItemId("skill", category)}
                 initial={{ opacity: 0, x: 28, rotateY: -4 }}
                 whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
                 transition={{
@@ -106,9 +113,22 @@ export function Skills({ skills }: SkillsProps) {
                 }}
                 viewport={{ once: true, margin: "-80px" }}
                 whileHover={{ y: -8, scale: 1.015 }}
-                className="relative w-[86vw] max-w-[24rem] shrink-0 snap-start rounded-lg border bg-card p-5 shadow-sm backdrop-blur transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/45 before:to-transparent hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 sm:w-[22rem] md:w-[24rem] md:p-6"
+                className="spotlight-card group relative w-[76vw] max-w-[19rem] shrink-0 snap-start rounded-lg border bg-card p-5 shadow-sm backdrop-blur transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/45 before:to-transparent hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 active:scale-[0.99] sm:w-[19rem]"
               >
-                <div className="mb-6 flex items-center gap-3">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedCategory(category)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedCategory(category);
+                    }
+                  }}
+                  className="focus-ring -m-2 rounded-lg p-2"
+                  aria-label={`View ${category} skill details`}
+                >
+                <div className="mb-5 flex items-center gap-3">
                   <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
                     <Icon className="h-5 w-5" />
                   </div>
@@ -120,86 +140,119 @@ export function Skills({ skills }: SkillsProps) {
                   </div>
                 </div>
 
-                <div className="space-y-5">
-                  {categorySkills.map((skill, skillIndex) => (
-                    <motion.div
+                <div className="flex flex-wrap gap-2">
+                  {categorySkills.slice(0, 4).map((skill) => (
+                    <span
                       key={skill._id}
-                      initial={{ opacity: 0, x: -16 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{
-                        duration: 0.3,
-                        delay: categoryIndex * 0.06 + skillIndex * 0.04,
-                      }}
-                      viewport={{ once: true }}
-                      className="rounded-lg border border-border/60 bg-background/50 p-4"
+                      className="inline-flex items-center gap-1.5 rounded-full border bg-background/60 px-2.5 py-1 text-xs font-semibold text-muted-foreground"
                     >
-                      <div className="mb-2 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold">
-                            {skill.name}
-                          </span>
-                          {skill.featured && (
-                            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-primary">
-                              Focus
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-xs font-bold text-muted-foreground">
-                          {skill.level || 80}%
-                        </span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${skill.level || 80}%` }}
-                          transition={{
-                            duration: 0.9,
-                            delay: categoryIndex * 0.05 + skillIndex * 0.03,
-                            ease: "easeOut",
-                          }}
-                          viewport={{ once: true }}
-                          className="h-full rounded-full bg-gradient-to-r from-sky-500 via-emerald-500 to-amber-400"
-                        />
-                      </div>
-
-                      {skill.note && (
-                        <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                          {skill.note}
-                        </p>
-                      )}
-
-                      {(skill.docsLink || skill.proofLink) && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {skill.docsLink && (
-                            <a
-                              href={skill.docsLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary"
-                            >
-                              <FileText className="h-3.5 w-3.5" /> Docs
-                            </a>
-                          )}
-                          {skill.proofLink && (
-                            <a
-                              href={skill.proofLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary"
-                            >
-                              <ExternalLink className="h-3.5 w-3.5" /> Proof
-                            </a>
-                          )}
-                        </div>
-                      )}
-                    </motion.div>
+                      <TechIcon name={skill.name} />
+                      {skill.name}
+                    </span>
                   ))}
+                  {categorySkills.length > 4 && (
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                      +{categorySkills.length - 4}
+                    </span>
+                  )}
                 </div>
-              </motion.div>
+                <div className="mt-5 flex items-center justify-between border-t pt-4 text-xs font-bold uppercase tracking-[0.14em] text-primary">
+                  View details
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                </div>
+                </div>
+              </motion.article>
             );
           })}
         </div>
       </div>
+      {selectedCategory && (
+        <SkillDetailSheet
+          category={selectedCategory}
+          skills={skills.filter((skill) => skill.category === selectedCategory)}
+          onClose={() => setSelectedCategory(null)}
+        />
+      )}
     </section>
+  );
+}
+
+function SkillDetailSheet({
+  category,
+  skills,
+  onClose,
+}: {
+  category: string;
+  skills: PortfolioSkill[];
+  onClose: () => void;
+}) {
+  return (
+    <DetailSheet title={category} eyebrow="Skill Details" onClose={onClose}>
+      <div className="grid gap-3">
+        {skills.map((skill, index) => (
+          <motion.div
+            key={skill._id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, delay: index * 0.04 }}
+            className="rounded-lg border bg-muted/30 p-4"
+          >
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="rounded-md bg-background p-1.5 text-primary">
+                  <TechIcon name={skill.name} className="h-4 w-4" />
+                </span>
+                <span className="font-semibold">{skill.name}</span>
+                {skill.featured && (
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-primary">
+                    Focus
+                  </span>
+                )}
+              </div>
+              <span className="text-xs font-bold text-muted-foreground">
+                {skill.level || 80}%
+              </span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-secondary">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${skill.level || 80}%` }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="h-full rounded-full bg-gradient-to-r from-sky-500 via-emerald-500 to-amber-400"
+              />
+            </div>
+            {skill.note && (
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                {skill.note}
+              </p>
+            )}
+            {(skill.docsLink || skill.proofLink) && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {skill.docsLink && (
+                  <a
+                    href={skill.docsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-ring inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary"
+                  >
+                    <FileText className="h-3.5 w-3.5" /> Docs
+                  </a>
+                )}
+                {skill.proofLink && (
+                  <a
+                    href={skill.proofLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-ring inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" /> Proof
+                  </a>
+                )}
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </DetailSheet>
   );
 }

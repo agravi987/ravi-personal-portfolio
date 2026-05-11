@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
+  ArrowRight,
   Activity,
   Boxes,
   Cloud,
@@ -14,6 +15,8 @@ import {
   Workflow,
 } from "lucide-react";
 import type { PortfolioKnowledge } from "@/lib/portfolio-data";
+import { DetailSheet } from "@/components/DetailSheet";
+import { portfolioItemId } from "@/lib/portfolio-links";
 
 interface KnowledgeProps {
   items: PortfolioKnowledge[];
@@ -35,6 +38,9 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
     [items]
   );
   const [activeCategory, setActiveCategory] = useState("All");
+  const [selectedItem, setSelectedItem] = useState<PortfolioKnowledge | null>(
+    null
+  );
 
   const visibleItems = useMemo(() => {
     if (activeCategory === "All") return items;
@@ -113,13 +119,27 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
             return (
               <motion.article
                 key={item._id}
+                id={portfolioItemId("knowledge", item._id || item.title)}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: index * 0.06 }}
                 viewport={{ once: true, margin: "-80px" }}
                 whileHover={{ y: -8, scale: 1.015 }}
-                className="relative w-[86vw] max-w-[24rem] shrink-0 snap-start rounded-lg border border-cyan-900/10 bg-slate-50/90 p-5 shadow-sm transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-cyan-400/55 before:to-transparent hover:border-cyan-500/30 hover:shadow-xl hover:shadow-cyan-900/10 sm:w-[22rem] md:w-[24rem] md:p-6 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30"
+                className="group relative w-[76vw] max-w-[20rem] shrink-0 snap-start rounded-lg border border-cyan-900/10 bg-slate-50/90 p-5 shadow-sm transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-cyan-400/55 before:to-transparent hover:border-cyan-500/30 hover:shadow-xl hover:shadow-cyan-900/10 sm:w-[20rem] dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30"
               >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedItem(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedItem(item);
+                    }
+                  }}
+                  className="focus-ring -m-2 rounded-lg p-2"
+                  aria-label={`View details for ${item.title}`}
+                >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="rounded-xl bg-cyan-500/10 p-3 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200">
@@ -139,12 +159,12 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
                   )}
                 </div>
 
-                <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
                   {item.summary}
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-2">
-                  {item.topics.map((topic) => (
+                  {item.topics.slice(0, 3).map((topic) => (
                     <span
                       key={topic}
                       className="rounded-full border border-cyan-900/10 bg-white/80 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/10 dark:text-slate-200"
@@ -152,35 +172,77 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
                       {topic}
                     </span>
                   ))}
+                  {item.topics.length > 3 && (
+                    <span className="rounded-full bg-cyan-600/10 px-2.5 py-1 text-xs font-bold text-cyan-800 dark:text-cyan-100">
+                      +{item.topics.length - 3}
+                    </span>
+                  )}
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-cyan-900/10 pt-5 dark:border-white/10">
-                  {item.documentationLink && (
-                    <a
-                      href={item.documentationLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-cyan-900/15 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-cyan-600/40 hover:text-cyan-700 dark:border-white/15 dark:text-slate-100 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
-                    >
-                      <FileText className="h-4 w-4" /> Docs
-                    </a>
-                  )}
-                  {item.proofLink && (
-                    <a
-                      href={item.proofLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-500 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200"
-                    >
-                      <FolderGit2 className="h-4 w-4" /> Proof
-                    </a>
-                  )}
+                <div className="mt-6 flex items-center justify-between border-t border-cyan-900/10 pt-5 text-xs font-bold uppercase tracking-[0.14em] text-cyan-800 dark:border-white/10 dark:text-cyan-100">
+                  View notes
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                </div>
                 </div>
               </motion.article>
             );
           })}
         </div>
       </div>
+      {selectedItem && (
+        <KnowledgeDetailSheet
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </section>
+  );
+}
+
+function KnowledgeDetailSheet({
+  item,
+  onClose,
+}: {
+  item: PortfolioKnowledge;
+  onClose: () => void;
+}) {
+  return (
+    <DetailSheet title={item.title} eyebrow={item.category} onClose={onClose}>
+      <p className="leading-7 text-muted-foreground">{item.summary}</p>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {item.topics.map((topic) => (
+          <span
+            key={topic}
+            className="rounded-full border bg-muted/40 px-3 py-1 text-xs font-semibold text-muted-foreground"
+          >
+            {topic}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-3 border-t pt-5">
+        {item.documentationLink && (
+          <a
+            href={item.documentationLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="focus-ring inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition hover:border-primary/40 hover:text-primary"
+          >
+            <FileText className="h-4 w-4" /> Docs
+          </a>
+        )}
+        {item.proofLink && (
+          <a
+            href={item.proofLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="focus-ring inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+          >
+            <FolderGit2 className="h-4 w-4" /> Proof
+          </a>
+        )}
+      </div>
+    </DetailSheet>
   );
 }

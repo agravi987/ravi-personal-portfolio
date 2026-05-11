@@ -14,7 +14,7 @@ export default async function Home() {
   const { data, usingFallback } = await getPortfolioData();
 
   return (
-    <PageFrame profile={data.profile}>
+    <PageFrame profile={data.profile} commandData={data}>
       <Hero usingFallback={usingFallback} profile={data.profile} />
       <About profile={data.profile} />
       <Projects projects={data.projects} showPageLink />
