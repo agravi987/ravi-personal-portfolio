@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google"; // Use Inter or keep Geist
 import "./globals.css";
 import { Providers } from "./providers";
@@ -9,6 +9,16 @@ export const metadata: Metadata = {
   title: "Ravi Agrahari | Full-Stack Cloud Developer",
   description:
     "Professional portfolio for Ravi Agrahari, a full-stack developer focused on Next.js, MERN, cloud-ready deployments, APIs, and DevOps-minded product delivery.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f0f9ff" },
+    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+  ],
 };
 
 /**
@@ -24,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><Providers>{children}</Providers></div>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

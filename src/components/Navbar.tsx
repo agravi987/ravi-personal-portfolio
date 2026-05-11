@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "./theme-toggle";
-import { Menu, X } from "lucide-react";
+import { FolderGit2, Home, Layers3, Mail, Menu, UserRound, X } from "lucide-react";
 import type { PortfolioProfile } from "@/lib/portfolio-data";
 
 const navLinks = [
@@ -15,6 +15,14 @@ const navLinks = [
   { name: "Knowledge", href: "/knowledge", sectionId: "knowledge" },
   { name: "Experience", href: "/experience", sectionId: "experience" },
   { name: "Contact", href: "/contact", sectionId: "contact" },
+];
+
+const mobileDockLinks = [
+  { name: "Home", href: "/", icon: Home, sectionId: "home" },
+  { name: "About", href: "/about", icon: UserRound, sectionId: "about" },
+  { name: "Work", href: "/projects", icon: FolderGit2, sectionId: "projects" },
+  { name: "Stack", href: "/stack", icon: Layers3, sectionId: "skills" },
+  { name: "Contact", href: "/contact", icon: Mail, sectionId: "contact" },
 ];
 
 export function Navbar({ profile }: { profile?: PortfolioProfile }) {
@@ -67,21 +75,22 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
   }, [pathname]);
 
   return (
+    <>
     <nav className="fixed top-0 z-50 w-full border-b bg-background/85 backdrop-blur-xl">
       <div
         className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-500 via-teal-400 to-sky-500 transition-[width] duration-150"
         style={{ width: `${scrollProgress}%` }}
       />
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="group inline-flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-black text-primary-foreground shadow-lg shadow-primary/20 transition group-hover:-translate-y-0.5 group-hover:rotate-3">
+        <Link href="/" className="focus-ring group inline-flex items-center gap-3 rounded-lg">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-black text-primary-foreground shadow-lg shadow-primary/20 transition group-hover:-translate-y-0.5 group-hover:rotate-3">
             RA
           </span>
-          <span className="leading-tight">
+          <span className="min-w-0 leading-tight">
             <span className="block text-sm font-bold">
               {profile?.fullName || "Ravi Agrahari"}
             </span>
-            <span className="block text-xs font-medium text-muted-foreground">
+            <span className="block max-w-[13rem] truncate text-xs font-medium text-muted-foreground sm:max-w-none">
               {profile?.role || "Full-stack cloud developer"}
             </span>
           </span>
@@ -97,7 +106,7 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`rounded-full px-3 py-2 text-sm font-semibold transition hover:-translate-y-0.5 hover:bg-accent hover:text-primary ${
+                className={`focus-ring rounded-full px-3 py-2 text-sm font-semibold transition hover:-translate-y-0.5 hover:bg-accent hover:text-primary ${
                   isActive
                     ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
                     : "text-muted-foreground"
@@ -109,32 +118,35 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
           })}
           <Link
             href="/contact"
-            className="ml-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+            className="focus-ring ml-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
           >
             Hire Ravi
           </Link>
           <ThemeToggle />
         </div>
 
-        <button
-          className="rounded-lg p-2 transition hover:bg-accent md:hidden"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle navigation"
-          aria-controls="mobile-nav"
-          aria-expanded={isOpen}
-        >
-          {isOpen ? <X /> : <Menu />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            className="focus-ring rounded-lg p-2 transition hover:bg-accent"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle navigation"
+            aria-controls="mobile-nav"
+            aria-expanded={isOpen}
+          >
+            {isOpen ? <X /> : <Menu />}
+          </button>
+        </div>
       </div>
 
       {isOpen && (
-        <div id="mobile-nav" role="dialog" aria-modal="true" aria-label="mobile navigation" className="border-b bg-background md:hidden">
-          <div className="flex flex-col gap-2 p-4">
+        <div id="mobile-nav" role="dialog" aria-modal="true" aria-label="mobile navigation" className="border-b bg-background/95 shadow-xl shadow-slate-900/10 backdrop-blur-xl md:hidden">
+          <div className="grid max-h-[calc(100dvh-4rem)] gap-2 overflow-y-auto p-4 pb-24">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className={`rounded-lg px-3 py-3 text-sm font-semibold transition hover:bg-accent hover:text-primary ${
+                className={`focus-ring rounded-lg px-3 py-3 text-sm font-semibold transition hover:bg-accent hover:text-primary ${
                   pathname === link.href ||
                   (pathname === "/" && activeSection === link.sectionId)
                     ? "bg-primary/10 text-primary"
@@ -148,16 +160,49 @@ export function Navbar({ profile }: { profile?: PortfolioProfile }) {
             <div className="mt-2 flex items-center justify-between border-t pt-4">
               <Link
                 href="/contact"
-                className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                className="focus-ring rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                 onClick={() => setIsOpen(false)}
               >
                 Hire Ravi
               </Link>
-              <ThemeToggle />
+              <Link
+                href={profile?.resumeUrl || "/resume.pdf"}
+                className="focus-ring rounded-full border px-4 py-2 text-sm font-semibold text-muted-foreground"
+                onClick={() => setIsOpen(false)}
+              >
+                Resume
+              </Link>
             </div>
           </div>
         </div>
       )}
     </nav>
+    <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 md:hidden">
+      <div className="mobile-safe-bottom mx-auto grid max-w-md grid-cols-5 rounded-2xl border border-white/60 bg-background/90 p-1.5 shadow-2xl shadow-slate-900/20 backdrop-blur-xl dark:border-white/10">
+        {mobileDockLinks.map((link) => {
+          const Icon = link.icon;
+          const isActive =
+            pathname === link.href ||
+            (pathname === "/" && activeSection === link.sectionId);
+
+          return (
+            <Link
+              key={link.name}
+              href={link.href}
+              className={`focus-ring flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-bold transition ${
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                  : "text-muted-foreground hover:bg-accent hover:text-primary"
+              }`}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <Icon className="h-4 w-4" />
+              {link.name}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+    </>
   );
 }

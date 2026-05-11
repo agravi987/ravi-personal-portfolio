@@ -13,6 +13,7 @@ import {
   Layers,
   Network,
   Server,
+  Sparkles,
   X,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -71,17 +72,33 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
     [projects]
   );
 
+  const categoryCounts = useMemo(
+    () =>
+      projects.reduce<Record<string, number>>(
+        (counts, project) => {
+          const category = inferProjectCategory(project);
+          counts.All += 1;
+          counts[category] = (counts[category] || 0) + 1;
+          return counts;
+        },
+        { All: 0 }
+      ),
+    [projects]
+  );
+
+  const selectedFilter = categories.includes(activeFilter) ? activeFilter : "All";
+
   const visibleProjects = useMemo(() => {
-    if (activeFilter === "All") return projects;
+    if (selectedFilter === "All") return projects;
     return projects.filter(
-      (project) => inferProjectCategory(project) === activeFilter
+      (project) => inferProjectCategory(project) === selectedFilter
     );
-  }, [activeFilter, projects]);
+  }, [selectedFilter, projects]);
 
   return (
     <section
       id="projects"
-      className="relative overflow-hidden bg-sky-50 py-24 text-slate-950 dark:bg-slate-950 dark:text-slate-100"
+      className="relative overflow-hidden bg-sky-50 py-16 text-slate-950 dark:bg-slate-950 dark:text-slate-100 md:py-24"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(14,165,233,0.16),transparent_28%),radial-gradient(circle_at_20%_70%,rgba(20,184,166,0.14),transparent_32%)] dark:bg-[radial-gradient(circle_at_75%_20%,rgba(20,184,166,0.16),transparent_28%),radial-gradient(circle_at_20%_70%,rgba(56,189,248,0.12),transparent_32%)]" />
       <div className="absolute inset-0 grid-pattern opacity-20 dark:opacity-25" />
@@ -92,48 +109,62 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
       />
 
       <div className="container relative mx-auto px-4">
-        <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+        <div className="mb-8 flex flex-col justify-between gap-4 md:mb-10 md:flex-row md:items-end md:gap-5">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-700 md:text-sm md:tracking-[0.2em] dark:text-cyan-300">
               Projects
             </p>
             <h2 className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">
               Cloud-ready builds, simple and useful.
             </h2>
           </div>
-          <p className="max-w-lg leading-7 text-slate-700 dark:text-slate-300">
+          <p className="max-w-lg text-sm leading-6 text-slate-700 md:text-base md:leading-7 dark:text-slate-300">
             Work that connects product UI, backend logic, admin control, and
             deployment thinking in one delivery path.
           </p>
         </div>
 
-        <div className="mb-8 flex flex-wrap items-center gap-3">
+        <div className="-mx-4 mb-4 flex snap-x items-center gap-2 overflow-x-auto px-4 pb-2 md:mx-0 md:flex-wrap md:gap-3 md:overflow-visible md:px-0 md:pb-0" role="tablist" aria-label="Project categories">
           {categories.map((category) => (
             <button
               key={category}
               type="button"
+              role="tab"
+              aria-selected={selectedFilter === category}
               onClick={() => setActiveFilter(category)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                activeFilter === category
+              className={`focus-ring inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                selectedFilter === category
                   ? "bg-cyan-600 text-white shadow-lg shadow-cyan-700/20 dark:bg-cyan-300 dark:text-slate-950"
                   : "border border-cyan-900/10 bg-white/75 text-slate-700 hover:border-cyan-500/40 hover:text-cyan-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
               }`}
             >
-              {category}
+              <span>{category}</span>
+              <span className={`rounded-full px-2 py-0.5 text-[11px] ${
+                selectedFilter === category
+                  ? "bg-white/20"
+                  : "bg-cyan-700/10 text-cyan-800 dark:bg-white/10 dark:text-cyan-100"
+              }`}>
+                {categoryCounts[category] || 0}
+              </span>
             </button>
           ))}
 
           {showPageLink && (
             <Link
               href="/projects"
-              className="inline-flex items-center gap-2 rounded-full border border-cyan-900/15 bg-white/75 px-4 py-2 text-sm font-bold text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
+              className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-full border border-cyan-900/15 bg-white/75 px-4 py-2 text-sm font-bold text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
             >
               More Projects <ExternalLink className="h-4 w-4" />
             </Link>
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <p className="mb-6 text-sm font-medium text-slate-600 md:mb-8 dark:text-slate-300" aria-live="polite">
+          Showing {visibleProjects.length} {visibleProjects.length === 1 ? "project" : "projects"}
+          {selectedFilter !== "All" ? ` in ${selectedFilter}` : ""}.
+        </p>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 xl:grid-cols-3">
           {visibleProjects.map((project, index) => {
             const AccentIcon =
               projectAccentIcons[index % projectAccentIcons.length];
@@ -159,9 +190,10 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                       setSelectedProject(project);
                     }
                   }}
-                  className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-cyan-900/10 bg-white/85 text-left shadow-lg shadow-cyan-900/10 backdrop-blur-xl transition hover:border-cyan-500/35 hover:shadow-xl hover:shadow-cyan-900/15 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-cyan-950/20 dark:hover:border-cyan-300/40"
+                  aria-label={`Open case study for ${project.title}`}
+                  className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-cyan-900/10 bg-white/90 text-left shadow-lg shadow-cyan-900/10 backdrop-blur-xl transition hover:border-cyan-500/35 hover:shadow-xl hover:shadow-cyan-900/15 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-cyan-950/20 dark:hover:border-cyan-300/40"
                 >
-                  <div className="relative h-48 overflow-hidden border-b border-cyan-900/10 bg-[radial-gradient(circle_at_30%_25%,rgba(14,165,233,0.28),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.74),rgba(186,230,253,0.45),rgba(204,251,241,0.58))] dark:border-white/10 dark:bg-[radial-gradient(circle_at_30%_25%,rgba(103,232,249,0.32),transparent_26%),linear-gradient(135deg,rgba(15,23,42,0.4),rgba(20,184,166,0.22),rgba(2,6,23,0.84))]">
+                  <div className="relative h-40 overflow-hidden border-b border-cyan-900/10 bg-[radial-gradient(circle_at_30%_25%,rgba(14,165,233,0.28),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.74),rgba(186,230,253,0.45),rgba(204,251,241,0.58))] sm:h-48 dark:border-white/10 dark:bg-[radial-gradient(circle_at_30%_25%,rgba(103,232,249,0.32),transparent_26%),linear-gradient(135deg,rgba(15,23,42,0.4),rgba(20,184,166,0.22),rgba(2,6,23,0.84))]">
                     {project.image ? (
                       <Image
                         src={project.image}
@@ -189,7 +221,7 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                     )}
                   </div>
 
-                  <div className="flex flex-1 flex-col p-6">
+                  <div className="flex flex-1 flex-col p-4 sm:p-6">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-full border border-cyan-900/10 bg-cyan-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800 dark:border-white/10 dark:bg-white/10 dark:text-cyan-100">
                         {category}
@@ -197,13 +229,19 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                       <span className="rounded-full border border-cyan-900/10 bg-white/70 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                         {project.status || "Live"}
                       </span>
+                      {project.featured && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-400/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-700 dark:text-amber-200">
+                          <Sparkles className="h-3 w-3" />
+                          Featured
+                        </span>
+                      )}
                     </div>
 
                     <h3 className="mt-4 text-lg font-bold tracking-tight text-slate-950 group-hover:text-cyan-700 dark:text-white dark:group-hover:text-cyan-300">
                       {project.title}
                     </h3>
 
-                    <p className="mt-3 line-clamp-3 flex-1 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                    <p className="mt-3 line-clamp-2 flex-1 text-sm leading-6 text-slate-700 sm:line-clamp-3 dark:text-slate-300">
                       {project.description}
                     </p>
 
@@ -218,14 +256,14 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                       ))}
                     </div>
 
-                    <div className="mt-6 flex flex-wrap gap-3 border-t border-cyan-900/10 pt-5 dark:border-white/10">
+                    <div className="mt-5 grid grid-cols-2 items-center gap-2 border-t border-cyan-900/10 pt-4 sm:mt-6 sm:flex sm:flex-wrap sm:gap-3 sm:pt-5 dark:border-white/10">
                       {project.liveLink && (
                         <a
                           href={project.liveLink}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(event) => event.stopPropagation()}
-                          className="inline-flex items-center gap-2 rounded-full bg-cyan-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-cyan-500 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200"
+                          className="inline-flex items-center justify-center gap-2 rounded-full bg-cyan-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-cyan-500 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200"
                         >
                           <ExternalLink className="h-4 w-4" /> Live
                         </a>
@@ -236,7 +274,7 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(event) => event.stopPropagation()}
-                          className="inline-flex items-center gap-2 rounded-full border border-cyan-900/15 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-cyan-600/50 hover:text-cyan-700 dark:border-white/15 dark:text-slate-100 dark:hover:border-cyan-300/50 dark:hover:text-cyan-300"
+                          className="inline-flex items-center justify-center gap-2 rounded-full border border-cyan-900/15 px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-cyan-600/50 hover:text-cyan-700 dark:border-white/15 dark:text-slate-100 dark:hover:border-cyan-300/50 dark:hover:text-cyan-300"
                         >
                           <Github className="h-4 w-4" /> Code
                         </a>
@@ -247,6 +285,9 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                           Case study
                         </span>
                       )}
+                      <span className="col-span-2 inline-flex items-center justify-center gap-1 rounded-full bg-cyan-600/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-cyan-800 transition sm:ml-auto sm:bg-transparent sm:px-0 sm:py-0 sm:opacity-0 sm:group-hover:opacity-100 dark:text-cyan-200">
+                        Details <ArrowHint />
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -293,7 +334,7 @@ function ProjectCaseStudyModal({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/70 p-0 backdrop-blur-md md:items-center md:p-4"
       role="dialog"
       aria-modal="true"
       aria-label={`${project.title} case study`}
@@ -305,14 +346,15 @@ function ProjectCaseStudyModal({
         exit={{ opacity: 0, y: 24, scale: 0.97 }}
         transition={{ duration: 0.2 }}
         onMouseDown={(event) => event.stopPropagation()}
-        className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-cyan-200/20 bg-white p-6 shadow-2xl shadow-cyan-950/30 dark:bg-slate-950 dark:text-slate-100"
+        className="mobile-safe-bottom max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-t-2xl border border-cyan-200/20 bg-white p-4 shadow-2xl shadow-cyan-950/30 sm:p-6 md:max-h-[88vh] md:rounded-lg dark:bg-slate-950 dark:text-slate-100"
       >
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-slate-300 md:hidden dark:bg-white/20" />
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300">
               Case Study
             </p>
-            <h3 className="mt-2 text-2xl font-bold">{project.title}</h3>
+            <h3 className="mt-2 text-xl font-bold sm:text-2xl">{project.title}</h3>
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="rounded-full border border-cyan-900/10 bg-cyan-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-cyan-800 dark:border-white/10 dark:bg-white/10 dark:text-cyan-100">
                 {inferProjectCategory(project)}
@@ -333,7 +375,7 @@ function ProjectCaseStudyModal({
         </div>
 
         <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">
-          <div className="relative min-h-56 overflow-hidden rounded-xl border bg-[radial-gradient(circle_at_30%_25%,rgba(14,165,233,0.28),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.74),rgba(186,230,253,0.45),rgba(204,251,241,0.58))] dark:border-white/10 dark:bg-[radial-gradient(circle_at_30%_25%,rgba(103,232,249,0.32),transparent_26%),linear-gradient(135deg,rgba(15,23,42,0.4),rgba(20,184,166,0.22),rgba(2,6,23,0.84))]">
+          <div className="relative min-h-44 overflow-hidden rounded-xl border bg-[radial-gradient(circle_at_30%_25%,rgba(14,165,233,0.28),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.74),rgba(186,230,253,0.45),rgba(204,251,241,0.58))] sm:min-h-56 dark:border-white/10 dark:bg-[radial-gradient(circle_at_30%_25%,rgba(103,232,249,0.32),transparent_26%),linear-gradient(135deg,rgba(15,23,42,0.4),rgba(20,184,166,0.22),rgba(2,6,23,0.84))]">
             {project.image ? (
               <Image
                 src={project.image}
@@ -447,4 +489,8 @@ function ProjectCaseStudyModal({
       </motion.div>
     </div>
   );
+}
+
+function ArrowHint() {
+  return <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />;
 }
