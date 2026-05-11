@@ -13,6 +13,7 @@ import {
   Rocket,
   ShieldCheck,
   Sparkles,
+  Terminal,
 } from "lucide-react";
 import { ShootingStars } from "@/components/ui/shooting-stars";
 import { StarsBackground } from "@/components/ui/stars-background";
@@ -143,6 +144,13 @@ export function Hero({ usingFallback = false, profile }: HeroProps) {
               >
                 <Mail className="h-5 w-5" />
               </Link>
+            </div>
+
+            <div className="mt-5 inline-flex max-w-full items-center gap-2 overflow-hidden rounded-full border border-cyan-900/10 bg-white/75 px-3 py-2 font-mono text-xs font-bold text-cyan-900 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/8 dark:text-cyan-100">
+              <Terminal className="h-3.5 w-3.5 shrink-0" />
+              <span className="terminal-type">
+                deploying full-stack ideas... ready
+              </span>
             </div>
 
             <div className="mt-6 grid max-w-2xl grid-cols-3 gap-2 sm:gap-3 md:mt-8">

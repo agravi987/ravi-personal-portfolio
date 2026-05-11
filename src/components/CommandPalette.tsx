@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type ElementType } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
   BriefcaseBusiness,
@@ -285,6 +286,18 @@ export function CommandPalette({
 
   return (
     <>
+      <AnimatePresence>
+        {open && (
+          <motion.span
+            key="command-glow"
+            initial={{ opacity: 0.5, scale: 0.35 }}
+            animate={{ opacity: 0, scale: 4.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.65, ease: "easeOut" }}
+            className="pointer-events-none fixed bottom-28 left-4 z-[69] h-12 w-12 rounded-full border border-primary/50 bg-primary/15 md:bottom-6"
+          />
+        )}
+      </AnimatePresence>
       <button
         type="button"
         onClick={() => setOpen(true)}

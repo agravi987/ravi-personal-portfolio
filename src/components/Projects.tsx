@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type PointerEvent,
+} from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -18,11 +23,12 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { PortfolioProject } from "@/lib/portfolio-data";
 import { PlanetDecor } from "@/components/PlanetDecor";
 import { TechIcon } from "@/components/TechIcon";
 import { portfolioItemId } from "@/lib/portfolio-links";
+import { HorizontalCardRail } from "@/components/HorizontalCardRail";
 
 interface ProjectsProps {
   projects: PortfolioProject[];
@@ -52,26 +58,6 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
   const [selectedProject, setSelectedProject] =
     useState<PortfolioProject | null>(null);
   const [activeFilter, setActiveFilter] = useState("All");
-  const [activeRailIndex, setActiveRailIndex] = useState(0);
-  const railRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!selectedProject) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setSelectedProject(null);
-      }
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedProject]);
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(projects.map(inferProjectCategory)))],
@@ -101,36 +87,81 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
     );
   }, [selectedFilter, projects]);
 
-  const scrollRail = (direction: "previous" | "next") => {
-    const rail = railRef.current;
-    if (!rail) return;
+  const selectedProjectIndex = selectedProject
+    ? visibleProjects.findIndex((project) => project._id === selectedProject._id)
+    : -1;
 
-    const card = rail.querySelector<HTMLElement>("[data-project-card]");
-    const scrollBy =
-      card?.offsetWidth && card.offsetWidth > 0
-        ? card.offsetWidth + 20
-        : rail.clientWidth * 0.85;
+  const selectAdjacentProject = useCallback(
+    (direction: "previous" | "next") => {
+      setSelectedProject((currentProject) => {
+        if (!currentProject) return currentProject;
 
-    rail.scrollBy({
-      left: direction === "next" ? scrollBy : -scrollBy,
-      behavior: "smooth",
-    });
-  };
+        const currentIndex = visibleProjects.findIndex(
+          (project) => project._id === currentProject._id
+        );
+        if (currentIndex === -1) return currentProject;
 
-  const handleRailScroll = () => {
-    const rail = railRef.current;
-    const card = rail?.querySelector<HTMLElement>("[data-project-card]");
-    if (!rail || !card) return;
+        const nextIndex =
+          direction === "next"
+            ? Math.min(currentIndex + 1, visibleProjects.length - 1)
+            : Math.max(currentIndex - 1, 0);
 
-    const cardStep = card.offsetWidth + 20;
-    const nextIndex = Math.round(rail.scrollLeft / Math.max(cardStep, 1));
-    setActiveRailIndex(Math.min(nextIndex, visibleProjects.length - 1));
-  };
+        return visibleProjects[nextIndex] || currentProject;
+      });
+    },
+    [visibleProjects]
+  );
+
+  useEffect(() => {
+    if (!selectedProject) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedProject(null);
+      }
+
+      if (event.key === "ArrowRight") {
+        selectAdjacentProject("next");
+      }
+
+      if (event.key === "ArrowLeft") {
+        selectAdjacentProject("previous");
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectAdjacentProject, selectedProject]);
 
   const selectFilter = (category: string) => {
     setActiveFilter(category);
-    setActiveRailIndex(0);
-    railRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+  };
+
+  const handleMagneticMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "touch") return;
+
+    const card = event.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+
+    card.style.setProperty("--card-rotate-x", `${(0.5 - y) * 5}deg`);
+    card.style.setProperty("--card-rotate-y", `${(x - 0.5) * 7}deg`);
+    card.style.setProperty("--card-shine-x", `${x * 100}%`);
+    card.style.setProperty("--card-shine-y", `${y * 100}%`);
+    card.style.setProperty("--card-shine-opacity", "1");
+  };
+
+  const resetMagneticCard = (event: PointerEvent<HTMLDivElement>) => {
+    const card = event.currentTarget;
+    card.style.setProperty("--card-rotate-x", "0deg");
+    card.style.setProperty("--card-rotate-y", "0deg");
+    card.style.setProperty("--card-shine-opacity", "0");
   };
 
   return (
@@ -186,54 +217,22 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
               </span>
             </button>
           ))}
-
-          {showPageLink && (
-            <Link
-              href="/projects"
-              className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-full border border-cyan-900/15 bg-white/75 px-4 py-2 text-sm font-bold text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
-            >
-              More Projects <ExternalLink className="h-4 w-4" />
-            </Link>
-          )}
         </div>
 
-        <div className="mb-6 flex items-center justify-between gap-4 md:mb-8">
+        <div className="mb-4 flex items-center justify-between gap-4">
           <p className="text-sm font-medium text-slate-600 dark:text-slate-300" aria-live="polite">
             Showing {visibleProjects.length} {visibleProjects.length === 1 ? "project" : "projects"}
             {selectedFilter !== "All" ? ` in ${selectedFilter}` : ""}.
           </p>
-          <div className="hidden items-center gap-2 sm:flex">
-            <button
-              type="button"
-              onClick={() => scrollRail("previous")}
-              className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-900/15 bg-white/80 text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
-              aria-label="Scroll projects left"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollRail("next")}
-              className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-900/15 bg-white/80 text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
-              aria-label="Scroll projects right"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
         </div>
 
-        <div className="relative">
-          <div className="pointer-events-none absolute bottom-4 right-2 z-10 hidden items-center gap-1 rounded-full border border-cyan-900/10 bg-white/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800 shadow-sm backdrop-blur sm:flex lg:hidden dark:border-white/10 dark:bg-slate-950/70 dark:text-cyan-100">
-            Swipe
-            <ChevronRight className="h-3.5 w-3.5 animate-rail-hint" />
-          </div>
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-12 bg-gradient-to-r from-sky-50 to-transparent md:block dark:from-slate-950" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-12 bg-gradient-to-l from-sky-50 to-transparent md:block dark:from-slate-950" />
-          <div
-            ref={railRef}
-            onScroll={handleRailScroll}
-            className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-5"
-          >
+        <HorizontalCardRail
+          key={selectedFilter}
+          itemCount={visibleProjects.length}
+          ariaLabel="projects"
+          viewMoreHref={showPageLink ? "/projects" : undefined}
+          viewMoreLabel="View more projects"
+        >
             {visibleProjects.map((project, index) => {
               const AccentIcon =
                 projectAccentIcons[index % projectAccentIcons.length];
@@ -242,6 +241,7 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
               return (
                 <motion.article
                   key={project._id}
+                  layoutId={`project-card-${project._id}`}
                   id={portfolioItemId("project", project._id || project.title)}
                   data-project-card
                   initial={{ opacity: 0, x: 28, rotateY: -5 }}
@@ -262,7 +262,9 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                     }
                   }}
                   aria-label={`Open case study for ${project.title}`}
-                  className="spotlight-card relative flex h-full min-h-[27rem] w-full flex-col overflow-hidden rounded-lg border border-cyan-900/10 bg-white/90 text-left shadow-lg shadow-cyan-900/10 backdrop-blur-xl transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-cyan-400/60 before:to-transparent hover:border-cyan-500/35 hover:shadow-2xl hover:shadow-cyan-900/20 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.07] dark:shadow-cyan-950/20 dark:hover:border-cyan-300/40"
+                  onPointerMove={handleMagneticMove}
+                  onPointerLeave={resetMagneticCard}
+                  className="magnetic-card spotlight-card relative flex h-full min-h-[27rem] w-full flex-col overflow-hidden rounded-lg border border-cyan-900/10 bg-white/90 text-left shadow-lg shadow-cyan-900/10 backdrop-blur-xl transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-cyan-400/60 before:to-transparent hover:border-cyan-500/35 hover:shadow-2xl hover:shadow-cyan-900/20 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.07] dark:shadow-cyan-950/20 dark:hover:border-cyan-300/40"
                 >
                   <div className="relative h-32 overflow-hidden border-b border-cyan-900/10 bg-[radial-gradient(circle_at_30%_25%,rgba(14,165,233,0.28),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.74),rgba(186,230,253,0.45),rgba(204,251,241,0.58))] sm:h-36 dark:border-white/10 dark:bg-[radial-gradient(circle_at_30%_25%,rgba(103,232,249,0.32),transparent_26%),linear-gradient(135deg,rgba(15,23,42,0.4),rgba(20,184,166,0.22),rgba(2,6,23,0.84))]">
                     {project.image ? (
@@ -371,52 +373,47 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
               </motion.article>
               );
             })}
-          </div>
-          {visibleProjects.length > 1 && (
-            <div className="mt-1 flex justify-center gap-1.5">
-              {visibleProjects.map((project, index) => (
-                <button
-                  key={project._id}
-                  type="button"
-                  onClick={() => {
-                    const rail = railRef.current;
-                    const card =
-                      rail?.querySelector<HTMLElement>("[data-project-card]");
-                    if (!rail || !card) return;
-                    rail.scrollTo({
-                      left: index * (card.offsetWidth + 20),
-                      behavior: "smooth",
-                    });
-                  }}
-                  className={`focus-ring h-2 rounded-full transition-all ${
-                    activeRailIndex === index
-                      ? "w-8 bg-cyan-600 dark:bg-cyan-300"
-                      : "w-2 bg-cyan-900/20 hover:bg-cyan-600/50 dark:bg-white/20"
-                  }`}
-                  aria-label={`Go to project ${index + 1}`}
-                  aria-current={activeRailIndex === index ? "true" : undefined}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        </HorizontalCardRail>
       </div>
 
-      {selectedProject && (
-        <ProjectCaseStudyModal
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectCaseStudyModal
+            project={selectedProject}
+            projectIndex={Math.max(selectedProjectIndex, 0)}
+            totalProjects={visibleProjects.length}
+            hasPrevious={selectedProjectIndex > 0}
+            hasNext={
+              selectedProjectIndex >= 0 &&
+              selectedProjectIndex < visibleProjects.length - 1
+            }
+            onPrevious={() => selectAdjacentProject("previous")}
+            onNext={() => selectAdjacentProject("next")}
+            onClose={() => setSelectedProject(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
 
 function ProjectCaseStudyModal({
   project,
+  projectIndex,
+  totalProjects,
+  hasPrevious,
+  hasNext,
+  onPrevious,
+  onNext,
   onClose,
 }: {
   project: PortfolioProject;
+  projectIndex: number;
+  totalProjects: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
   onClose: () => void;
 }) {
   const architecture = useMemo(() => {
@@ -446,6 +443,7 @@ function ProjectCaseStudyModal({
       onMouseDown={onClose}
     >
       <motion.div
+        layoutId={`project-card-${project._id}`}
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 24, scale: 0.97 }}
@@ -469,14 +467,37 @@ function ProjectCaseStudyModal({
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border p-2 text-muted-foreground transition hover:-translate-y-0.5 hover:border-cyan-500/40 hover:text-primary"
-            aria-label="Close project case study"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <span className="hidden rounded-full border bg-background px-3 py-2 text-xs font-bold text-muted-foreground sm:inline-flex">
+              {projectIndex + 1} / {totalProjects}
+            </span>
+            <button
+              type="button"
+              onClick={onPrevious}
+              disabled={!hasPrevious}
+              className="focus-ring grid h-9 w-9 place-items-center rounded-full border text-muted-foreground transition hover:-translate-y-0.5 hover:border-cyan-500/40 hover:text-primary disabled:pointer-events-none disabled:opacity-35"
+              aria-label="Open previous project"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onNext}
+              disabled={!hasNext}
+              className="focus-ring grid h-9 w-9 place-items-center rounded-full border text-muted-foreground transition hover:-translate-y-0.5 hover:border-cyan-500/40 hover:text-primary disabled:pointer-events-none disabled:opacity-35"
+              aria-label="Open next project"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="focus-ring grid h-9 w-9 place-items-center rounded-full border text-muted-foreground transition hover:-translate-y-0.5 hover:border-cyan-500/40 hover:text-primary"
+              aria-label="Close project case study"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div className="grid gap-5 md:grid-cols-[0.9fr_1.1fr]">

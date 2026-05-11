@@ -18,9 +18,9 @@ export default async function Home() {
       <Hero usingFallback={usingFallback} profile={data.profile} />
       <About profile={data.profile} />
       <Projects projects={data.projects} showPageLink />
-      <Skills skills={data.skills} />
+      <Skills skills={data.skills} showPageLink />
       <Knowledge items={data.knowledge} showPageLink />
-      <Experience experience={data.experience} />
+      <Experience experience={data.experience} showPageLink />
       <Contact achievements={data.achievements} profile={data.profile} />
     </PageFrame>
   );

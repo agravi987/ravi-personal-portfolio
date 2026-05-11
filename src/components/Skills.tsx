@@ -18,9 +18,11 @@ import { PlanetDecor } from "@/components/PlanetDecor";
 import { DetailSheet } from "@/components/DetailSheet";
 import { TechIcon } from "@/components/TechIcon";
 import { portfolioItemId } from "@/lib/portfolio-links";
+import { HorizontalCardRail } from "@/components/HorizontalCardRail";
 
 interface SkillsProps {
   skills: PortfolioSkill[];
+  showPageLink?: boolean;
 }
 
 const iconForCategory = (category: string) => {
@@ -39,7 +41,7 @@ const iconForCategory = (category: string) => {
   return Wrench;
 };
 
-export function Skills({ skills }: SkillsProps) {
+export function Skills({ skills, showPageLink = false }: SkillsProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const categories = Array.from(new Set(skills.map((skill) => skill.category)));
   const average =
@@ -93,7 +95,13 @@ export function Skills({ skills }: SkillsProps) {
           </div>
         </div>
 
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-6">
+        <HorizontalCardRail
+          itemCount={categories.length}
+          ariaLabel="skills"
+          viewMoreHref={showPageLink ? "/stack" : undefined}
+          viewMoreLabel="View more stack"
+          railClassName="md:gap-6"
+        >
           {categories.map((category, categoryIndex) => {
             const Icon = iconForCategory(category);
             const categorySkills = skills.filter(
@@ -140,6 +148,8 @@ export function Skills({ skills }: SkillsProps) {
                   </div>
                 </div>
 
+                <SkillConstellation skills={categorySkills} />
+
                 <div className="flex flex-wrap gap-2">
                   {categorySkills.slice(0, 4).map((skill) => (
                     <span
@@ -164,7 +174,7 @@ export function Skills({ skills }: SkillsProps) {
               </motion.article>
             );
           })}
-        </div>
+        </HorizontalCardRail>
       </div>
       {selectedCategory && (
         <SkillDetailSheet
@@ -174,6 +184,69 @@ export function Skills({ skills }: SkillsProps) {
         />
       )}
     </section>
+  );
+}
+
+function SkillConstellation({ skills }: { skills: PortfolioSkill[] }) {
+  const visibleSkills = skills.slice(0, 5);
+  const points = [
+    { x: 16, y: 62 },
+    { x: 35, y: 24 },
+    { x: 55, y: 48 },
+    { x: 74, y: 18 },
+    { x: 86, y: 58 },
+  ];
+
+  if (visibleSkills.length < 2) return null;
+
+  return (
+    <div className="mb-5 overflow-hidden rounded-lg border bg-background/45 p-3">
+      <svg
+        viewBox="0 0 100 72"
+        className="h-20 w-full"
+        role="img"
+        aria-label="Related skill constellation"
+      >
+        {visibleSkills.slice(1).map((skill, index) => (
+          <motion.line
+            key={`line-${skill._id}`}
+            x1={points[index].x}
+            y1={points[index].y}
+            x2={points[index + 1].x}
+            y2={points[index + 1].y}
+            stroke="currentColor"
+            strokeWidth="0.7"
+            className="text-primary/35"
+            initial={{ pathLength: 0, opacity: 0 }}
+            whileInView={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 0.55, delay: index * 0.08 }}
+            viewport={{ once: true }}
+          />
+        ))}
+        {visibleSkills.map((skill, index) => (
+          <g key={skill._id}>
+            <motion.circle
+              cx={points[index].x}
+              cy={points[index].y}
+              r={skill.featured ? 4.5 : 3.5}
+              className="fill-primary"
+              initial={{ scale: 0, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.28, delay: index * 0.08 }}
+              viewport={{ once: true }}
+            />
+            <text
+              x={points[index].x}
+              y={Math.min(points[index].y + 13, 69)}
+              textAnchor="middle"
+              className="fill-muted-foreground text-[5px] font-bold"
+            >
+              {skill.name.slice(0, 9)}
+            </text>
+          </g>
+        ))}
+      </svg>
+    </div>
   );
 }
 

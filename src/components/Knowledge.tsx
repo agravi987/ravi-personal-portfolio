@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -8,7 +7,6 @@ import {
   Activity,
   Boxes,
   Cloud,
-  ExternalLink,
   FileText,
   FolderGit2,
   ShieldCheck,
@@ -17,6 +15,7 @@ import {
 import type { PortfolioKnowledge } from "@/lib/portfolio-data";
 import { DetailSheet } from "@/components/DetailSheet";
 import { portfolioItemId } from "@/lib/portfolio-links";
+import { HorizontalCardRail } from "@/components/HorizontalCardRail";
 
 interface KnowledgeProps {
   items: PortfolioKnowledge[];
@@ -101,18 +100,15 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
               {category}
             </button>
           ))}
-
-          {showPageLink && (
-            <Link
-              href="/knowledge"
-              className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-full border border-cyan-900/15 bg-white/80 px-4 py-2 text-sm font-bold text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/10 dark:bg-white/8 dark:text-cyan-100"
-            >
-              Explore All <ExternalLink className="h-4 w-4" />
-            </Link>
-          )}
         </div>
 
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-5">
+        <HorizontalCardRail
+          key={activeCategory}
+          itemCount={visibleItems.length}
+          ariaLabel="knowledge"
+          viewMoreHref={showPageLink ? "/knowledge" : undefined}
+          viewMoreLabel="View more knowledge"
+        >
           {visibleItems.map((item, index) => {
             const Icon = iconForCategory(item.category);
 
@@ -187,7 +183,7 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
               </motion.article>
             );
           })}
-        </div>
+        </HorizontalCardRail>
       </div>
       {selectedItem && (
         <KnowledgeDetailSheet

@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { CommandPalette } from "@/components/CommandPalette";
+import { SectionNavigator } from "@/components/SectionNavigator";
 import Link from "next/link";
 import type {
   PortfolioExperience,
@@ -37,6 +38,7 @@ export function PageFrame({
       <Navbar profile={profile} />
       <ScrollToTop />
       <CommandPalette profile={profile} data={commandData} />
+      <SectionNavigator />
       <div id="content" className="relative z-10 pb-20 md:pb-0">
         {children}
       </div>

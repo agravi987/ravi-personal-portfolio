@@ -17,9 +17,11 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import confetti from "canvas-confetti";
 import type { PortfolioAchievement } from "@/lib/portfolio-data";
 import type { PortfolioProfile } from "@/lib/portfolio-data";
 import { DetailSheet } from "@/components/DetailSheet";
+import { HorizontalCardRail } from "@/components/HorizontalCardRail";
 
 interface ContactProps {
   achievements: PortfolioAchievement[];
@@ -33,6 +35,25 @@ interface ContactFormData {
   subject: string;
   message: string;
   company?: string;
+}
+
+function celebrate(origin = { x: 0.5, y: 0.75 }, compact = false) {
+  if (
+    typeof window === "undefined" ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return;
+  }
+
+  void confetti({
+    particleCount: compact ? 32 : 86,
+    spread: compact ? 42 : 68,
+    startVelocity: compact ? 22 : 36,
+    gravity: 0.9,
+    scalar: compact ? 0.72 : 0.9,
+    origin,
+    colors: ["#06b6d4", "#14b8a6", "#f59e0b", "#22c55e", "#ffffff"],
+  });
 }
 
 const inputClass =
@@ -81,9 +102,10 @@ export function Contact({
     try {
       await navigator.clipboard.writeText(email);
       setCopiedEmail(true);
+      celebrate({ x: 0.18, y: 0.82 }, true);
       setTimeout(() => setCopiedEmail(false), 1800);
     } catch {
-      window.location.href = `mailto:${email}`;
+      window.location.assign(`mailto:${email}`);
     }
   };
 
@@ -108,6 +130,7 @@ export function Contact({
       }
 
       setSubmitStatus("success");
+      celebrate();
       reset();
       setTimeout(() => setSubmitStatus("idle"), 5000);
     } catch (error) {
@@ -137,7 +160,12 @@ export function Contact({
               </h2>
             </div>
 
-            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-5">
+            <HorizontalCardRail
+              itemCount={achievements.length}
+              ariaLabel="achievements"
+              viewMoreHref="/contact"
+              viewMoreLabel="View contact details"
+            >
               {achievements.map((achievement) => (
                 <article
                   key={achievement._id}
@@ -184,7 +212,7 @@ export function Contact({
                   </div>
                 </article>
               ))}
-            </div>
+            </HorizontalCardRail>
           </div>
         )}
 
@@ -263,7 +291,13 @@ export function Contact({
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-lg border bg-background p-4 shadow-sm sm:p-5 md:p-6">
+          <div
+            className={`relative overflow-hidden rounded-lg border bg-background p-4 shadow-sm transition sm:p-5 md:p-6 ${
+              submitStatus === "success"
+                ? "contact-success-glow border-emerald-500/30"
+                : ""
+            }`}
+          >
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent" />
             <div className="mb-5 flex items-start gap-3 rounded-lg border bg-muted/40 p-3 sm:p-4">
               <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
@@ -419,12 +453,21 @@ export function Contact({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="focus-ring sticky bottom-24 z-10 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 md:static"
+                className={`focus-ring sticky bottom-24 z-10 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-8 py-3 font-semibold shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 md:static ${
+                  submitStatus === "success"
+                    ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                    : "bg-primary text-primary-foreground shadow-primary/20 hover:bg-primary/90"
+                }`}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
                     Sending...
+                  </>
+                ) : submitStatus === "success" ? (
+                  <>
+                    <Check className="h-5 w-5" />
+                    Message Sent
                   </>
                 ) : (
                   <>
