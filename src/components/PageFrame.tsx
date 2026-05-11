@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Link from "next/link";
 import type { PortfolioProfile } from "@/lib/portfolio-data";
 
@@ -18,6 +19,7 @@ export function PageFrame({
         Skip to content
       </a>
       <Navbar profile={profile} />
+      <ScrollToTop />
       <div id="content" className="relative z-10 pb-20 md:pb-0">
         {children}
       </div>

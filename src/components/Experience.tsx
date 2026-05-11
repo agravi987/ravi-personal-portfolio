@@ -1,6 +1,9 @@
 "use client";
 
+"use client";
+
 import { Briefcase, CalendarDays, GraduationCap, Milestone } from "lucide-react";
+import { motion } from "framer-motion";
 import type { PortfolioExperience } from "@/lib/portfolio-data";
 
 interface ExperienceProps {
@@ -26,7 +29,14 @@ export function Experience({ experience }: ExperienceProps) {
         </div>
 
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.35fr_0.65fr]">
-          <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            viewport={{ once: true, margin: "-80px" }}
+            whileHover={{ y: -6, scale: 1.01 }}
+            className="relative rounded-lg border bg-card p-6 shadow-sm transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/45 before:to-transparent hover:border-primary/35 hover:shadow-xl hover:shadow-primary/10"
+          >
             <div className="flex items-center gap-3 text-primary">
               <Milestone className="h-5 w-5" />
               <h3 className="font-bold">Delivery profile</h3>
@@ -51,23 +61,27 @@ export function Experience({ experience }: ExperienceProps) {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="relative">
-            <div className="absolute bottom-0 left-5 top-0 hidden w-px bg-border md:block" />
-            <div className="space-y-5">
-              {experience.map((exp) => {
+          <div className="relative min-w-0">
+            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none lg:mx-0 lg:px-0">
+              {experience.map((exp, index) => {
                 const Icon =
                   exp.type.toLowerCase() === "education"
                     ? GraduationCap
                     : Briefcase;
 
                 return (
-                  <article
+                  <motion.article
                     key={exp._id}
-                    className="relative rounded-xl border bg-background p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 md:ml-12"
+                    initial={{ opacity: 0, x: 26 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.38, delay: index * 0.08 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    whileHover={{ y: -8, scale: 1.015 }}
+                    className="relative w-[86vw] max-w-[30rem] shrink-0 snap-start rounded-lg border bg-background p-5 shadow-sm transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/45 before:to-transparent hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 sm:w-[28rem] md:p-6 lg:w-[31rem]"
                   >
-                    <div className="absolute -left-[3.25rem] top-6 hidden h-10 w-10 items-center justify-center rounded-full border bg-background text-primary shadow-sm md:flex">
+                    <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-full border bg-background text-primary shadow-sm">
                       <Icon className="h-5 w-5" />
                     </div>
 
@@ -94,7 +108,7 @@ export function Experience({ experience }: ExperienceProps) {
                         {exp.description}
                       </p>
                     )}
-                  </article>
+                  </motion.article>
                 );
               })}
             </div>

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  ChevronLeft,
+  ChevronRight,
   Cloud,
   ExternalLink,
   FileText,
@@ -48,6 +50,8 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
   const [selectedProject, setSelectedProject] =
     useState<PortfolioProject | null>(null);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [activeRailIndex, setActiveRailIndex] = useState(0);
+  const railRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!selectedProject) return;
@@ -95,6 +99,38 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
     );
   }, [selectedFilter, projects]);
 
+  const scrollRail = (direction: "previous" | "next") => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const card = rail.querySelector<HTMLElement>("[data-project-card]");
+    const scrollBy =
+      card?.offsetWidth && card.offsetWidth > 0
+        ? card.offsetWidth + 20
+        : rail.clientWidth * 0.85;
+
+    rail.scrollBy({
+      left: direction === "next" ? scrollBy : -scrollBy,
+      behavior: "smooth",
+    });
+  };
+
+  const handleRailScroll = () => {
+    const rail = railRef.current;
+    const card = rail?.querySelector<HTMLElement>("[data-project-card]");
+    if (!rail || !card) return;
+
+    const cardStep = card.offsetWidth + 20;
+    const nextIndex = Math.round(rail.scrollLeft / Math.max(cardStep, 1));
+    setActiveRailIndex(Math.min(nextIndex, visibleProjects.length - 1));
+  };
+
+  const selectFilter = (category: string) => {
+    setActiveFilter(category);
+    setActiveRailIndex(0);
+    railRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+  };
+
   return (
     <section
       id="projects"
@@ -131,7 +167,7 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
               type="button"
               role="tab"
               aria-selected={selectedFilter === category}
-              onClick={() => setActiveFilter(category)}
+              onClick={() => selectFilter(category)}
               className={`focus-ring inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
                 selectedFilter === category
                   ? "bg-cyan-600 text-white shadow-lg shadow-cyan-700/20 dark:bg-cyan-300 dark:text-slate-950"
@@ -159,27 +195,59 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
           )}
         </div>
 
-        <p className="mb-6 text-sm font-medium text-slate-600 md:mb-8 dark:text-slate-300" aria-live="polite">
-          Showing {visibleProjects.length} {visibleProjects.length === 1 ? "project" : "projects"}
-          {selectedFilter !== "All" ? ` in ${selectedFilter}` : ""}.
-        </p>
+        <div className="mb-6 flex items-center justify-between gap-4 md:mb-8">
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-300" aria-live="polite">
+            Showing {visibleProjects.length} {visibleProjects.length === 1 ? "project" : "projects"}
+            {selectedFilter !== "All" ? ` in ${selectedFilter}` : ""}.
+          </p>
+          <div className="hidden items-center gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={() => scrollRail("previous")}
+              className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-900/15 bg-white/80 text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
+              aria-label="Scroll projects left"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollRail("next")}
+              className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full border border-cyan-900/15 bg-white/80 text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/15 dark:bg-white/10 dark:text-cyan-100"
+              aria-label="Scroll projects right"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 xl:grid-cols-3">
-          {visibleProjects.map((project, index) => {
-            const AccentIcon =
-              projectAccentIcons[index % projectAccentIcons.length];
-            const category = inferProjectCategory(project);
+        <div className="relative">
+          <div className="pointer-events-none absolute bottom-4 right-2 z-10 hidden items-center gap-1 rounded-full border border-cyan-900/10 bg-white/80 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800 shadow-sm backdrop-blur sm:flex lg:hidden dark:border-white/10 dark:bg-slate-950/70 dark:text-cyan-100">
+            Swipe
+            <ChevronRight className="h-3.5 w-3.5 animate-rail-hint" />
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-12 bg-gradient-to-r from-sky-50 to-transparent md:block dark:from-slate-950" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-12 bg-gradient-to-l from-sky-50 to-transparent md:block dark:from-slate-950" />
+          <div
+            ref={railRef}
+            onScroll={handleRailScroll}
+            className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-5"
+          >
+            {visibleProjects.map((project, index) => {
+              const AccentIcon =
+                projectAccentIcons[index % projectAccentIcons.length];
+              const category = inferProjectCategory(project);
 
-            return (
-              <motion.article
-                key={project._id}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: index * 0.06 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -8 }}
-                className="group h-full"
-              >
+              return (
+                <motion.article
+                  key={project._id}
+                  data-project-card
+                  initial={{ opacity: 0, x: 28, rotateY: -5 }}
+                  whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+                  transition={{ duration: 0.45, delay: index * 0.05, ease: "easeOut" }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  whileHover={{ y: -10, scale: 1.015 }}
+                  className="group h-auto w-[86vw] max-w-[24rem] shrink-0 snap-start sm:w-[22rem] md:w-[24rem] lg:w-[25rem]"
+                >
                 <div
                   role="button"
                   tabIndex={0}
@@ -191,7 +259,7 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                     }
                   }}
                   aria-label={`Open case study for ${project.title}`}
-                  className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-cyan-900/10 bg-white/90 text-left shadow-lg shadow-cyan-900/10 backdrop-blur-xl transition hover:border-cyan-500/35 hover:shadow-xl hover:shadow-cyan-900/15 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-cyan-950/20 dark:hover:border-cyan-300/40"
+                  className="relative flex h-full min-h-[33rem] w-full flex-col overflow-hidden rounded-lg border border-cyan-900/10 bg-white/90 text-left shadow-lg shadow-cyan-900/10 backdrop-blur-xl transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-cyan-400/60 before:to-transparent hover:border-cyan-500/35 hover:shadow-2xl hover:shadow-cyan-900/20 focus:outline-none focus:ring-4 focus:ring-cyan-500/20 dark:border-white/10 dark:bg-white/[0.07] dark:shadow-cyan-950/20 dark:hover:border-cyan-300/40"
                 >
                   <div className="relative h-40 overflow-hidden border-b border-cyan-900/10 bg-[radial-gradient(circle_at_30%_25%,rgba(14,165,233,0.28),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.74),rgba(186,230,253,0.45),rgba(204,251,241,0.58))] sm:h-48 dark:border-white/10 dark:bg-[radial-gradient(circle_at_30%_25%,rgba(103,232,249,0.32),transparent_26%),linear-gradient(135deg,rgba(15,23,42,0.4),rgba(20,184,166,0.22),rgba(2,6,23,0.84))]">
                     {project.image ? (
@@ -292,8 +360,36 @@ export function Projects({ projects, showPageLink = false }: ProjectsProps) {
                   </div>
                 </div>
               </motion.article>
-            );
-          })}
+              );
+            })}
+          </div>
+          {visibleProjects.length > 1 && (
+            <div className="mt-1 flex justify-center gap-1.5">
+              {visibleProjects.map((project, index) => (
+                <button
+                  key={project._id}
+                  type="button"
+                  onClick={() => {
+                    const rail = railRef.current;
+                    const card =
+                      rail?.querySelector<HTMLElement>("[data-project-card]");
+                    if (!rail || !card) return;
+                    rail.scrollTo({
+                      left: index * (card.offsetWidth + 20),
+                      behavior: "smooth",
+                    });
+                  }}
+                  className={`focus-ring h-2 rounded-full transition-all ${
+                    activeRailIndex === index
+                      ? "w-8 bg-cyan-600 dark:bg-cyan-300"
+                      : "w-2 bg-cyan-900/20 hover:bg-cyan-600/50 dark:bg-white/20"
+                  }`}
+                  aria-label={`Go to project ${index + 1}`}
+                  aria-current={activeRailIndex === index ? "true" : undefined}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

@@ -69,24 +69,24 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
           </p>
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2">
+        <div className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
           {topicHighlights.map((topic) => (
             <span
               key={topic}
-              className="rounded-full border border-cyan-900/10 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800 dark:border-white/10 dark:bg-white/10 dark:text-cyan-100"
+              className="shrink-0 rounded-full border border-cyan-900/10 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800 dark:border-white/10 dark:bg-white/10 dark:text-cyan-100"
             >
               {topic}
             </span>
           ))}
         </div>
 
-        <div className="mb-8 flex flex-wrap items-center gap-3">
+        <div className="-mx-4 mb-8 flex snap-x items-center gap-2 overflow-x-auto px-4 pb-2 scrollbar-none md:mx-0 md:flex-wrap md:gap-3 md:overflow-visible md:px-0 md:pb-0">
           {categories.map((category) => (
             <button
               key={category}
               type="button"
               onClick={() => setActiveCategory(category)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              className={`focus-ring shrink-0 snap-start rounded-full px-4 py-2 text-sm font-semibold transition ${
                 activeCategory === category
                   ? "bg-cyan-600 text-white shadow-lg shadow-cyan-700/20 dark:bg-cyan-300 dark:text-slate-950"
                   : "border border-cyan-900/10 bg-white text-slate-700 hover:border-cyan-500/40 hover:text-cyan-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-cyan-300/40 dark:hover:text-cyan-200"
@@ -99,14 +99,14 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
           {showPageLink && (
             <Link
               href="/knowledge"
-              className="inline-flex items-center gap-2 rounded-full border border-cyan-900/15 bg-white/80 px-4 py-2 text-sm font-bold text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/10 dark:bg-white/8 dark:text-cyan-100"
+              className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-full border border-cyan-900/15 bg-white/80 px-4 py-2 text-sm font-bold text-cyan-800 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-600/40 dark:border-white/10 dark:bg-white/8 dark:text-cyan-100"
             >
               Explore All <ExternalLink className="h-4 w-4" />
             </Link>
           )}
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-5">
           {visibleItems.map((item, index) => {
             const Icon = iconForCategory(item.category);
 
@@ -116,9 +116,9 @@ export function Knowledge({ items, showPageLink = false }: KnowledgeProps) {
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: index * 0.06 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -6 }}
-                className="rounded-2xl border border-cyan-900/10 bg-slate-50/90 p-6 shadow-sm transition hover:border-cyan-500/30 hover:shadow-lg hover:shadow-cyan-900/10 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30"
+                viewport={{ once: true, margin: "-80px" }}
+                whileHover={{ y: -8, scale: 1.015 }}
+                className="relative w-[86vw] max-w-[24rem] shrink-0 snap-start rounded-lg border border-cyan-900/10 bg-slate-50/90 p-5 shadow-sm transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-cyan-400/55 before:to-transparent hover:border-cyan-500/30 hover:shadow-xl hover:shadow-cyan-900/10 sm:w-[22rem] md:w-[24rem] md:p-6 dark:border-white/10 dark:bg-white/[0.05] dark:hover:border-cyan-300/30"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">

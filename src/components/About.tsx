@@ -61,14 +61,18 @@ export function About({ profile }: { profile?: PortfolioProfile }) {
             </p>
           </div>
 
-          <div className="grid gap-4">
-            {pillars.map((pillar) => {
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
+            {pillars.map((pillar, index) => {
               const Icon = pillar.icon;
               return (
                 <motion.div
                   key={pillar.title}
-                  whileHover={{ y: -6, scale: 1.01 }}
-                  className="rounded-xl border bg-background/90 p-6 shadow-sm backdrop-blur transition hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                  initial={{ opacity: 0, x: 24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.35, delay: index * 0.08 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  whileHover={{ y: -8, scale: 1.015 }}
+                  className="relative w-[86vw] max-w-[25rem] shrink-0 snap-start rounded-lg border bg-background/90 p-5 shadow-sm backdrop-blur transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/45 before:to-transparent hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 sm:w-[24rem] md:p-6 lg:w-auto lg:max-w-none"
                 >
                   <div className="flex gap-4">
                     <div className="h-11 w-11 shrink-0 rounded-lg bg-primary/10 p-2.5 text-primary">
@@ -87,14 +91,18 @@ export function About({ profile }: { profile?: PortfolioProfile }) {
           </div>
         </div>
 
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {focusAreas.map((area) => {
+        <div className="-mx-4 mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:mx-0 md:px-0">
+          {focusAreas.map((area, index) => {
             const Icon = area.icon;
             return (
               <motion.div
                 key={area.label}
-                whileHover={{ y: -5 }}
-                className="rounded-xl border bg-card/90 p-5 shadow-sm backdrop-blur transition hover:border-primary/35 hover:shadow-lg hover:shadow-primary/10"
+                initial={{ opacity: 0, x: 22 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.35, delay: index * 0.08 }}
+                viewport={{ once: true, margin: "-80px" }}
+                whileHover={{ y: -7, scale: 1.02 }}
+                className="relative w-[78vw] max-w-[20rem] shrink-0 snap-start rounded-lg border bg-card/90 p-5 shadow-sm backdrop-blur transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/45 before:to-transparent hover:border-primary/35 hover:shadow-xl hover:shadow-primary/10 sm:w-[19rem] md:flex-1"
               >
                 <div className="mb-4 flex items-center gap-3 text-primary">
                   <Icon className="h-5 w-5" />

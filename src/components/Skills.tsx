@@ -87,7 +87,7 @@ export function Skills({ skills }: SkillsProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-6">
           {categories.map((category, categoryIndex) => {
             const Icon = iconForCategory(category);
             const categorySkills = skills.filter(
@@ -97,12 +97,16 @@ export function Skills({ skills }: SkillsProps) {
             return (
               <motion.div
                 key={category}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: categoryIndex * 0.08 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -6 }}
-                className="rounded-xl border bg-card p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                initial={{ opacity: 0, x: 28, rotateY: -4 }}
+                whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+                transition={{
+                  duration: 0.45,
+                  delay: categoryIndex * 0.08,
+                  ease: "easeOut",
+                }}
+                viewport={{ once: true, margin: "-80px" }}
+                whileHover={{ y: -8, scale: 1.015 }}
+                className="relative w-[86vw] max-w-[24rem] shrink-0 snap-start rounded-lg border bg-card p-5 shadow-sm backdrop-blur transition duration-300 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-primary/45 before:to-transparent hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 sm:w-[22rem] md:w-[24rem] md:p-6"
               >
                 <div className="mb-6 flex items-center gap-3">
                   <div className="rounded-lg bg-primary/10 p-2.5 text-primary">

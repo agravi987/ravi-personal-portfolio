@@ -5,6 +5,7 @@ import {
   Check,
   CheckCircle,
   Clock,
+  MessageSquareText,
   Copy,
   Loader2,
   Mail,
@@ -34,7 +35,7 @@ interface ContactFormData {
 }
 
 const inputClass =
-  "focus-ring w-full rounded-lg border bg-background px-4 py-3 outline-none transition focus:border-primary/60";
+  "focus-ring min-h-12 w-full rounded-lg border bg-background px-4 py-3 text-base outline-none transition placeholder:text-muted-foreground/70 focus:border-primary/60 md:text-sm";
 
 const quickSubjects = [
   "Internship opportunity",
@@ -67,8 +68,11 @@ export function Contact({
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<ContactFormData>();
+  const selectedSubject = watch("subject") || "";
+  const messageValue = watch("message") || "";
 
   const copyEmail = async () => {
     try {
@@ -130,11 +134,11 @@ export function Contact({
               </h2>
             </div>
 
-            <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-auto md:grid md:max-w-6xl md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3">
+            <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-5 pt-1 scrollbar-none md:gap-5">
               {achievements.map((achievement) => (
                 <article
                   key={achievement._id}
-                  className="group w-[82vw] shrink-0 snap-start overflow-hidden rounded-lg border bg-background shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 md:w-auto"
+                  className="group w-[82vw] max-w-[22rem] shrink-0 snap-start overflow-hidden rounded-lg border bg-background shadow-sm transition duration-300 hover:-translate-y-2 hover:rotate-[0.4deg] hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 sm:w-[21rem] md:w-[22rem]"
                 >
                   <div className="relative h-36 border-b bg-[linear-gradient(135deg,rgba(245,158,11,0.18),rgba(14,165,233,0.14),rgba(16,185,129,0.14))] sm:h-44">
                     {achievement.certificateImage ? (
@@ -168,8 +172,8 @@ export function Contact({
           </div>
         )}
 
-        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.42fr_0.58fr] lg:gap-8">
-          <div>
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.42fr_0.58fr] lg:items-start lg:gap-8">
+          <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary md:text-sm md:tracking-[0.24em]">
               Contact
             </p>
@@ -182,8 +186,8 @@ export function Contact({
               deployment matter.
             </p>
 
-            <div className="mt-6 space-y-3 md:mt-8 md:space-y-4">
-              <div className="flex flex-col gap-3 rounded-lg border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1 md:mt-8 md:gap-4">
+              <div className="flex min-w-0 flex-col gap-3 rounded-lg border bg-background p-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-1">
                 <a
                   href={`mailto:${email}`}
                   className="focus-ring inline-flex min-w-0 items-center gap-3 rounded-md font-semibold transition hover:text-primary"
@@ -209,21 +213,23 @@ export function Contact({
                   )}
                 </button>
               </div>
-              <div className="flex items-center gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground md:text-base">
-                <MapPin className="h-5 w-5 text-primary" />
-                {profile?.location || "India, available for remote-first teams"}
+              <div className="flex min-w-0 items-start gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground md:text-base">
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <span className="min-w-0">
+                  {profile?.location || "India, available for remote-first teams"}
+                </span>
               </div>
-              <div className="flex items-center gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground md:text-base">
-                <Clock className="h-5 w-5 text-primary" />
-                Best fit: product builds, dashboards, APIs, cloud deploys
+              <div className="flex min-w-0 items-start gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground md:text-base">
+                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <span>Best fit: product builds, dashboards, APIs, cloud deploys</span>
               </div>
-              <div className="flex items-center gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground md:text-base">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-                Contact form stores requests and sends email alerts
+              <div className="flex min-w-0 items-start gap-3 rounded-lg border bg-background p-4 text-sm text-muted-foreground sm:col-span-2 md:text-base lg:col-span-1">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <span>Contact form stores requests and sends email alerts</span>
               </div>
             </div>
 
-            <div className="mt-6 rounded-lg border bg-background p-5">
+            <div className="mt-6 rounded-lg border bg-background p-4 sm:p-5">
               <p className="text-sm font-bold text-foreground">
                 Best collaboration fit
               </p>
@@ -241,10 +247,26 @@ export function Contact({
             </div>
           </div>
 
-          <div className="rounded-lg border bg-background p-6 shadow-sm">
+          <div className="relative overflow-hidden rounded-lg border bg-background p-4 shadow-sm sm:p-5 md:p-6">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent" />
+            <div className="mb-5 flex items-start gap-3 rounded-lg border bg-muted/40 p-3 sm:p-4">
+              <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
+                <MessageSquareText className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-foreground">
+                  Quick project note
+                </p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground sm:text-sm">
+                  Share the problem, timeline, stack, or link. A short message
+                  is completely fine.
+                </p>
+              </div>
+            </div>
+
             {submitStatus === "success" && (
-              <div className="mb-6 flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-300">
-                <CheckCircle className="h-5 w-5" />
+              <div className="mb-5 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-emerald-700 sm:p-4 dark:text-emerald-300">
+                <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" />
                 <p className="text-sm font-semibold">
                   Thank you. Your message has been sent successfully.
                 </p>
@@ -252,8 +274,8 @@ export function Contact({
             )}
 
             {submitStatus === "error" && (
-              <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-red-600">
-                <XCircle className="h-5 w-5" />
+              <div className="mb-5 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-red-600 sm:p-4">
+                <XCircle className="mt-0.5 h-5 w-5 shrink-0" />
                 <p className="text-sm font-semibold">{errorMessage}</p>
               </div>
             )}
@@ -276,11 +298,13 @@ export function Contact({
                   <input
                     {...register("name", { required: "Name is required" })}
                     type="text"
+                    autoComplete="name"
+                    aria-invalid={errors.name ? "true" : "false"}
                     className={inputClass}
                     placeholder="Your name"
                   />
                   {errors.name && (
-                    <p className="mt-1 text-xs font-medium text-red-500">
+                    <p className="mt-1.5 text-xs font-medium text-red-500">
                       {errors.name.message}
                     </p>
                   )}
@@ -299,11 +323,14 @@ export function Contact({
                       },
                     })}
                     type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    aria-invalid={errors.email ? "true" : "false"}
                     className={inputClass}
                     placeholder="your@email.com"
                   />
                   {errors.email && (
-                    <p className="mt-1 text-xs font-medium text-red-500">
+                    <p className="mt-1.5 text-xs font-medium text-red-500">
                       {errors.email.message}
                     </p>
                   )}
@@ -314,7 +341,7 @@ export function Contact({
                 <label className="mb-2 block text-sm font-semibold">
                   Subject
                 </label>
-                <div className="-mx-1 mb-3 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
+                <div className="-mx-1 mb-3 flex snap-x gap-2 overflow-x-auto px-1 pb-1 scrollbar-none sm:flex-wrap sm:overflow-visible sm:pb-0">
                   {quickSubjects.map((subject) => (
                     <button
                       key={subject}
@@ -325,7 +352,11 @@ export function Contact({
                           shouldTouch: true,
                         })
                       }
-                      className="focus-ring shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary/40 hover:text-primary"
+                      className={`focus-ring min-h-9 shrink-0 snap-start rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary ${
+                        selectedSubject === subject
+                          ? "border-primary/40 bg-primary/10 text-primary"
+                          : "text-muted-foreground"
+                      }`}
                     >
                       {subject}
                     </button>
@@ -334,23 +365,36 @@ export function Contact({
                 <input
                   {...register("subject")}
                   type="text"
+                  autoComplete="off"
                   className={inputClass}
                   placeholder="Internship, freelance build, or collaboration"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold">
-                  Message <span className="text-red-500">*</span>
-                </label>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <label className="block text-sm font-semibold">
+                    Message <span className="text-red-500">*</span>
+                  </label>
+                  <span
+                    className={`text-xs font-semibold ${
+                      messageValue.length > 1800
+                        ? "text-amber-600 dark:text-amber-300"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {messageValue.length}/2000
+                  </span>
+                </div>
                 <textarea
                   {...register("message", { required: "Message is required" })}
                   rows={5}
+                  aria-invalid={errors.message ? "true" : "false"}
                   className={`${inputClass} resize-none`}
                   placeholder="Tell me about the product, stack, deadline, or problem statement..."
                 />
                 {errors.message && (
-                  <p className="mt-1 text-xs font-medium text-red-500">
+                  <p className="mt-1.5 text-xs font-medium text-red-500">
                     {errors.message.message}
                   </p>
                 )}
@@ -359,7 +403,7 @@ export function Contact({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="focus-ring inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="focus-ring sticky bottom-24 z-10 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 md:static"
               >
                 {isSubmitting ? (
                   <>
